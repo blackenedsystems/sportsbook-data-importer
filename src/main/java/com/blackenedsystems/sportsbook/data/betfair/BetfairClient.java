@@ -1,36 +1,15 @@
 package com.blackenedsystems.sportsbook.data.betfair;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.conn.ssl.StrictHostnameVerifier;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
+import com.blackenedsystems.sportsbook.data.betfair.api.APIOperation;
+import com.blackenedsystems.sportsbook.data.betfair.model.MarketFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.security.KeyStore;
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * @author Alan Tibbetts
@@ -41,85 +20,34 @@ public class BetfairClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BetfairClient.class);
 
-    private static int port = 443;
+    private static final String FILTER = "filter";
+    private static final String LOCALE = "locale";
+    private static final String SORT = "sort";
+    private static final String MAX_RESULT = "maxResults";
+    private static final String MARKET_IDS = "marketIds";
+    private static final String MARKET_ID = "marketId";
+    private static final String INSTRUCTIONS = "instructions";
+    private static final String CUSTOMER_REF = "customerRef";
+    private static final String MARKET_PROJECTION = "marketProjection";
+    private static final String PRICE_PROJECTION = "priceProjection";
+    private static final String MATCH_PROJECTION = "matchProjection";
+    private static final String ORDER_PROJECTION = "orderProjection";
+    private static final String locale = Locale.getDefault().toString();
+
+    private final BetfairConnector betfairConnector;
 
     @Autowired
-    private BetfairConfiguration betfairConfiguration;
-
-    private DefaultHttpClient httpClient = new DefaultHttpClient();
-    private String sessionToken;
-
-    @PostConstruct
-    public void logon() throws Exception {
-        //TODO: tidy this up, remove deprecated code, etc
-
-        SSLContext ctx = SSLContext.getInstance("TLS");
-        KeyManager[] keyManagers =
-                getKeyManagers("pkcs12", new FileInputStream(new File(betfairConfiguration.loginCertFileName)), betfairConfiguration.loginCertPassword);
-        ctx.init(keyManagers, null, new SecureRandom());
-        SSLSocketFactory factory = new SSLSocketFactory(ctx, new StrictHostnameVerifier());
-
-        ClientConnectionManager manager = httpClient.getConnectionManager();
-        manager.getSchemeRegistry().register(new Scheme("https", port, factory));
-
-        HttpPost httpPost = new HttpPost(betfairConfiguration.loginUrl);
-        List<NameValuePair> nvpList = new ArrayList<>();
-        nvpList.add(new BasicNameValuePair("username", betfairConfiguration.username));
-        nvpList.add(new BasicNameValuePair("password", betfairConfiguration.password));
-
-        httpPost.setEntity(new UrlEncodedFormEntity(nvpList));
-        httpPost.setHeader("X-Application", betfairConfiguration.apiKey);
-
-        HttpResponse response = httpClient.execute(httpPost);
-        HttpEntity entity = response.getEntity();
-
-        if (entity != null) {
-            String responseString = EntityUtils.toString(entity);
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode jsonNode = objectMapper.readTree(responseString);
-            if ("SUCCESS".equals(jsonNode.get("loginStatus").asText())) {
-                sessionToken = jsonNode.get("sessionToken").asText();
-                LOGGER.info("Successfully logged in to betfair api");
-            } else {
-                LOGGER.error("Failed to logon to betfair api: {}", jsonNode.get("loginStatus").asText());
-            }
-        }
+    public BetfairClient(final BetfairConnector betfairConnector) {
+        this.betfairConnector = betfairConnector;
     }
 
-    @PreDestroy
-    public void logout() throws Exception {
-        HttpPost httpPost = new HttpPost(betfairConfiguration.logoutUrl);
+    public void loadSports(final MarketFilter filter) throws Exception {
+        Map<String, Object> params = new HashMap<>();
+        params.put(FILTER, filter);
+        params.put(LOCALE, locale);
 
-        httpPost.setHeader("Accept", "application/json");
-        httpPost.setHeader("X-Application", betfairConfiguration.apiKey);
-        httpPost.setHeader("X-Authentication", sessionToken);
-
-        HttpResponse response = httpClient.execute(httpPost);
-        HttpEntity entity = response.getEntity();
-
-        if (entity != null) {
-            String responseString = EntityUtils.toString(entity);
-            LOGGER.info(responseString);
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode jsonNode = objectMapper.readTree(responseString);
-            if ("SUCCESS".equals(jsonNode.get("status").asText())) {
-                sessionToken = null;
-                LOGGER.info("Successfully logged out to betfair api");
-            } else {
-                LOGGER.error("Failed to logout of betfair api: {}", jsonNode.get("error").asText());
-            }
-        }
+        String result = betfairConnector.postRequest(APIOperation.LISTEVENTTYPES, params);
+        LOGGER.info("Result of loadSports: {}", result);
     }
 
-    public void getCountries() throws Exception {
-
-    }
-
-    private KeyManager[] getKeyManagers(final String keyStoreType, final InputStream keyStoreFile, final String keyStorePassword) throws Exception {
-        KeyStore keyStore = KeyStore.getInstance(keyStoreType);
-        keyStore.load(keyStoreFile, keyStorePassword.toCharArray());
-        KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-        kmf.init(keyStore, keyStorePassword.toCharArray());
-        return kmf.getKeyManagers();
-    }
 }

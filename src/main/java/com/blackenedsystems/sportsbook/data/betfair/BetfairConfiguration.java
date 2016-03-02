@@ -36,6 +36,12 @@ public class BetfairConfiguration {
     @Value("${betfair.exchange.api.url}")
     public String exchangeApiUrl;
 
+    @Value("${betfair.connection.timeout}")
+    public int connectionTimeout;
+
+    @Value("${betfair.socket.timeout}")
+    public int socketTimeout;
+
     @Override
     public String toString() {
         return "BetfairConfiguration{" +
@@ -44,6 +50,8 @@ public class BetfairConfiguration {
                 ", loginCertFileName='" + loginCertFileName + '\'' +
                 ", loginCertPassword='****'" +
                 ", exchangeApiUrl='" + exchangeApiUrl + '\'' +
+                ", connectionTimeout=" + connectionTimeout +
+                ", socketTimeout=" + socketTimeout +
                 ", username='" + username + '\'' +
                 ", password='****'" +
                 ", apiKey='****'" +
