@@ -90,7 +90,7 @@ public class BetfairConnector {
             JsonNode jsonNode = objectMapper.readTree(responseString);
             if ("SUCCESS".equals(jsonNode.get("loginStatus").asText())) {
                 sessionToken = jsonNode.get("sessionToken").asText();
-                LOGGER.info("Successfully logged in to betfair api");
+                LOGGER.debug("Successfully logged in to betfair api");
             } else {
                 LOGGER.error("Failed to logon to betfair api: {}", jsonNode.get("loginStatus").asText());
             }
@@ -109,12 +109,12 @@ public class BetfairConnector {
 
         if (entity != null) {
             String responseString = EntityUtils.toString(entity);
-            LOGGER.info(responseString);
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode jsonNode = objectMapper.readTree(responseString);
+            LOGGER.debug(responseString);
+
+            JsonNode jsonNode = new ObjectMapper().readTree(responseString);
             if ("SUCCESS".equals(jsonNode.get("status").asText())) {
                 sessionToken = null;
-                LOGGER.info("Successfully logged out to betfair api");
+                LOGGER.debug("Successfully logged out of betfair api");
             } else {
                 LOGGER.error("Failed to logout of betfair api: {}", jsonNode.get("error").asText());
             }
@@ -133,8 +133,8 @@ public class BetfairConnector {
         String requestString = om.writeValueAsString(params);
         String url = betfairConfiguration.exchangeApiUrl + operation.getOperationName() + "/";
 
-        LOGGER.info("Requst URL: {}", url);
-        LOGGER.info("Request String: {}", requestString);
+        LOGGER.debug("Requst URL: {}", url);
+        LOGGER.debug("Request String: {}", requestString);
 
         return sendPostRequest(url, requestString);
     }

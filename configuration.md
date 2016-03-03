@@ -19,6 +19,8 @@ __Standard Properties__
 * __betfair.login.url__ : URL to use when logging in to the Betfair API. 
 * __betfair.logout.url__ : URL to use when logging out of the Betfair API.
 * __betfair.exchange.api.url__ : URL used to access data from Betfair.
+* __betfair.connection.timeout__ : Timeout period when connection to Betfair.
+* __betfair.socket.timeout__ : Timeout period when reading data from Berfair.
 
 __User / Environment Specific Properties__
 

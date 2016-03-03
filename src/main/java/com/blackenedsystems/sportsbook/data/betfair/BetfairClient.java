@@ -1,15 +1,17 @@
 package com.blackenedsystems.sportsbook.data.betfair;
 
 import com.blackenedsystems.sportsbook.data.betfair.api.APIOperation;
+import com.blackenedsystems.sportsbook.data.betfair.api.EventTypeWrapper;
+import com.blackenedsystems.sportsbook.data.betfair.model.EventType;
 import com.blackenedsystems.sportsbook.data.betfair.model.MarketFilter;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * @author Alan Tibbetts
@@ -32,7 +34,6 @@ public class BetfairClient {
     private static final String PRICE_PROJECTION = "priceProjection";
     private static final String MATCH_PROJECTION = "matchProjection";
     private static final String ORDER_PROJECTION = "orderProjection";
-    private static final String locale = Locale.getDefault().toString();
 
     private final BetfairConnector betfairConnector;
 
@@ -41,13 +42,20 @@ public class BetfairClient {
         this.betfairConnector = betfairConnector;
     }
 
-    public void loadSports(final MarketFilter filter) throws Exception {
+    public List<EventType> loadSports(final MarketFilter filter) throws IOException {
+        return loadSports(filter, Locale.getDefault());
+    }
+
+    public List<EventType> loadSports(final MarketFilter filter, final Locale locale) throws IOException {
         Map<String, Object> params = new HashMap<>();
         params.put(FILTER, filter);
-        params.put(LOCALE, locale);
+        params.put(LOCALE, locale.toString());
 
         String result = betfairConnector.postRequest(APIOperation.LISTEVENTTYPES, params);
-        LOGGER.info("Result of loadSports: {}", result);
+        LOGGER.debug("Result of loadSports: {}", result);
+
+        List<EventTypeWrapper> etw = Arrays.asList(new ObjectMapper().readValue(result, EventTypeWrapper[].class));
+        return EventTypeWrapper.extractEventTypes(etw);
     }
 
 }
