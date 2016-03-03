@@ -1,0 +1,54 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="data-mapping-1" author="alantibbetts">
+        <createTable tableName="data_mapping"
+                     remarks="Maps external data to corresponding internal data.">
+
+            <column name="id"
+                    autoIncrement="true"
+                    type="int"
+                    remarks="Primary Key">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="data_source"
+                    type="varchar(50)"
+                    remarks="Source of this data, e.g. betfair, betradar, etc.">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="data_type"
+                    type="varchar(50)"
+                    remarks="Type of data, e.g. sport, competition, etc.">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="internal_id"
+                    type="varchar(50)"
+                    remarks="Unique identifier for this data in internal data structure."/>
+
+            <column name="external_id"
+                    type="varchar(50)"
+                    remarks="Unique identifier for this data in external system.">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="external_description"
+                    type="varchar(255)"
+                    remarks="External description of this data.">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="sport"
+                    type="varchar(50)"
+                    remarks="The sport to which this data belongs, e.g. competition may have same name in multiple sports."/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="data_mapping"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

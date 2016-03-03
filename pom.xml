@@ -21,6 +21,10 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
+
+        <version.httpclient>4.5.1</version.httpclient>
+        <version.liquibase>3.4.2</version.liquibase>
+        <version.postgresql>9.3-1104-jdbc41</version.postgresql>
     </properties>
 
     <dependencies>
@@ -49,16 +53,49 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.5.1</version>
+            <version>${version.httpclient}</version>
+        </dependency>
+
+        <!-- Databases -->
+
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <version>${version.liquibase}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${version.postgresql}</version>
         </dependency>
 
     </dependencies>
 
     <build>
+        <filters>
+            <filter>${external.properties.file}</filter>
+        </filters>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-maven-plugin</artifactId>
+                <version>${version.liquibase}</version>
+                <configuration>
+                    <propertyFile>liquibase.properties</propertyFile>
+                </configuration>
             </plugin>
         </plugins>
     </build>

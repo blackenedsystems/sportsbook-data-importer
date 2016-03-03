@@ -12,8 +12,14 @@ See [here](./roadmap.md)
 ## Configuraton
 
 As an open source project, it would not be too clever to check in passwords, ssl certificates and the like, therefore, 
-the vast majority of configuration for this project is stored in external files.   Full details can be 
+the large percentage of configuration for this project is stored in external files.   Full details can be 
 found [here](./configuration.md).
+
+## Building
+
+Various properties required by Maven should be stored in external files, e.g. database properties, etc.  These should be 
+collected into a single file (see the template in the properties directory) and passed to maven via a system property, e.g.
+ mvn clean install -Dexternal.properties.file=/var/lib/sportsbook/data/environment.properties.
 
 ## Betfair
 

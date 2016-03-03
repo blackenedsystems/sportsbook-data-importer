@@ -1,8 +1,14 @@
 # Configuration
 
-The folder: 'properties', contains template configuration files for the various data services.  T
+## Build Configuration
+
+
+
+## Data Source Property Templates
+
+The folder: 'properties', contains template configuration files for the various data services.  
  
-## Betfair
+### Betfair
 
 There are a number of steps to complete with Betfair before you can use this application to extract data via their api.  Full documentation
 can be found in the Exchange API section of their [developers website](https://developer.betfair.com/).  However, in summary you will need to:
