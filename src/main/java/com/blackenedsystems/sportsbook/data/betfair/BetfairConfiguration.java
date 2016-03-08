@@ -9,7 +9,7 @@ import org.springframework.context.annotation.PropertySource;
  * @since 2015-05-19,  9:54 PM
  */
 @Configuration
-@PropertySource("file:${external.properties.location}/${betfair.properties.filename}")
+@PropertySource("${betfair.properties.filename}")
 public class BetfairConfiguration {
 
     @Value("${betfair.login.url}")

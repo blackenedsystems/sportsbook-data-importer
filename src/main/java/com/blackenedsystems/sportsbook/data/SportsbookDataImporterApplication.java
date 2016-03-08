@@ -4,8 +4,6 @@ import com.blackenedsystems.sportsbook.data.betfair.BetfairClient;
 import com.blackenedsystems.sportsbook.data.betfair.BetfairConnector;
 import com.blackenedsystems.sportsbook.data.betfair.model.EventType;
 import com.blackenedsystems.sportsbook.data.betfair.model.MarketFilter;
-import com.blackenedsystems.sportsbook.data.mapping.DataMapping;
-import com.blackenedsystems.sportsbook.data.mapping.DataMappingDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -37,10 +35,7 @@ public class SportsbookDataImporterApplication {
                 LOGGER.debug(eventType.toString());
             }
             betfairConnector.logout();
-
-            DataMappingDao dataMappingDao = (DataMappingDao) applicationContext.getBean("dataMappingDao");
-            List<DataMapping> dataMappingList = dataMappingDao.loadDataMappings();
-            LOGGER.info("DataMappings size: {} ", dataMappingList.size());
+            System.exit(0);
         } catch (Exception e) {
             e.printStackTrace();
         }
