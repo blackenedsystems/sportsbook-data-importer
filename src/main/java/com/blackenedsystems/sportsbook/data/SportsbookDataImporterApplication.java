@@ -2,8 +2,11 @@ package com.blackenedsystems.sportsbook.data;
 
 import com.blackenedsystems.sportsbook.data.betfair.BetfairClient;
 import com.blackenedsystems.sportsbook.data.betfair.BetfairConnector;
+import com.blackenedsystems.sportsbook.data.betfair.BetfairDataMappingService;
 import com.blackenedsystems.sportsbook.data.betfair.model.EventType;
 import com.blackenedsystems.sportsbook.data.betfair.model.MarketFilter;
+import com.blackenedsystems.sportsbook.data.mapping.DataMapping;
+import com.blackenedsystems.sportsbook.data.mapping.DataMappingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -31,10 +34,16 @@ public class SportsbookDataImporterApplication {
 
             betfairConnector.logon();
             List<EventType> eventTypes = betfairClient.loadSports(new MarketFilter());
-            for (EventType eventType : eventTypes) {
-                LOGGER.debug(eventType.toString());
-            }
             betfairConnector.logout();
+
+            BetfairDataMappingService betfairDataMappingService = (BetfairDataMappingService) applicationContext.getBean("betfairDataMappingService");
+            betfairDataMappingService.processSportsList(eventTypes);
+
+            DataMappingService dataMappingService = (DataMappingService) applicationContext.getBean("dataMappingService");
+            List<DataMapping> dataMappings = dataMappingService.loadDataMappings();
+            for (DataMapping dataMapping : dataMappings) {
+                LOGGER.debug(dataMapping.toString());
+            }
             System.exit(0);
         } catch (Exception e) {
             e.printStackTrace();

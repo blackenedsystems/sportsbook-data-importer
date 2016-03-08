@@ -12,6 +12,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.Assert.*;
 
@@ -48,8 +49,10 @@ public class DataMappingServiceDBTest extends DBTest {
                     public String[] getInitialisationSQL() {
                         return new String[]{
                                 "INSERT INTO data_mapping " +
-                                        "(id, data_source, data_type, external_id, external_description) " +
-                                        "VALUES (1, 'BETFAIR', 'SPORT', '1', 'Football')"
+                                        "(id, data_source, data_type, external_id, external_description, " +
+                                        " created, created_by, updated, updated_by) " +
+                                        "VALUES (1, 'BETFAIR', 'SPORT', '1', 'Football'," +
+                                        " CURRENT_TIMESTAMP(), 'system', CURRENT_TIMESTAMP(), 'system')"
                         };
                     }
 
@@ -79,7 +82,7 @@ public class DataMappingServiceDBTest extends DBTest {
 
                         assertEquals(0, dataMapping.getId());
 
-                        DataMapping udm = dataMappingService.saveOrUpdate(dataMapping);
+                        DataMapping udm = dataMappingService.saveOrUpdate(dataMapping, DataMappingService.INTERNAL_USER);
                         assertNotNull(udm);
                         assertTrue(udm.getId() > 0);
                     }
@@ -100,7 +103,7 @@ public class DataMappingServiceDBTest extends DBTest {
 
                         assertEquals(0, dataMapping.getId());
 
-                        DataMapping udm = dataMappingService.saveOrUpdate(dataMapping);
+                        DataMapping udm = dataMappingService.saveOrUpdate(dataMapping, DataMappingService.INTERNAL_USER);
                     }
                 }
         );
@@ -114,8 +117,10 @@ public class DataMappingServiceDBTest extends DBTest {
                     public String[] getInitialisationSQL() {
                         return new String[]{
                                 "INSERT INTO data_mapping " +
-                                        "(id, data_source, data_type, external_id, external_description) " +
-                                        "VALUES (1, 'BETFAIR', 'SPORT', '1', 'Football')"
+                                        "(id, data_source, data_type, external_id, external_description, " +
+                                        " created, created_by, updated, updated_by) " +
+                                        "VALUES (1, 'BETFAIR', 'SPORT', '1', 'Football'," +
+                                        " CURRENT_TIMESTAMP(), 'system', CURRENT_TIMESTAMP(), 'system')"
                         };
                     }
 
@@ -128,10 +133,50 @@ public class DataMappingServiceDBTest extends DBTest {
                         dataMapping.setExternalId("1");
                         dataMapping.setExternalDescription("Soccer");
 
-                        DataMapping udm = dataMappingService.saveOrUpdate(dataMapping);
+                        DataMapping udm = dataMappingService.saveOrUpdate(dataMapping, DataMappingService.INTERNAL_USER);
                         assertNotNull(udm);
                         assertEquals(1, udm.getId());
                         assertEquals("Soccer", udm.getExternalDescription());
+                    }
+                }
+        );
+    }
+
+    @Test
+    public void findByExernalId_notFound() throws Exception {
+        executeTest(
+                new AbstractDBTestExecutor() {
+                    @Override
+                    public void execute() {
+                        Optional<DataMapping> odm = dataMappingService.findByExternalId(ExternalDataSource.BETFAIR, MappingType.SPORT, "1");
+                        assertFalse(odm.isPresent());
+                    }
+                }
+        );
+    }
+
+    @Test
+    public void findByExernalId_exists() throws Exception {
+        executeTest(
+                new AbstractDBTestExecutor() {
+                    @Override
+                    public String[] getInitialisationSQL() {
+                        return new String[]{
+                                "INSERT INTO data_mapping " +
+                                        "(id, data_source, data_type, external_id, external_description, " +
+                                        " created, created_by, updated, updated_by) " +
+                                        "VALUES (1, 'BETFAIR', 'SPORT', '1', 'Football'," +
+                                        " CURRENT_TIMESTAMP(), 'system', CURRENT_TIMESTAMP(), 'system')"
+                        };
+                    }
+
+                    @Override
+                    public void execute() {
+                        Optional<DataMapping> odm = dataMappingService.findByExternalId(ExternalDataSource.BETFAIR, MappingType.SPORT, "1");
+                        assertTrue(odm.isPresent());
+
+                        DataMapping dataMapping = odm.get();
+                        assertEquals("description", "Football", dataMapping.getExternalDescription());
                     }
                 }
         );

@@ -45,10 +45,46 @@
             <column name="sport"
                     type="varchar(50)"
                     remarks="The sport to which this data belongs, e.g. competition may have same name in multiple sports."/>
+
+            <column name="created"
+                    type="datetime"
+                    remarks="Who created this row.">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_by"
+                    type="varchar(20)"
+                    remarks="When this row was created (in UTC)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="updated"
+                    type="datetime"
+                    remarks="Last person to update this row.">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="updated_by"
+                    type="varchar(20)"
+                    remarks="When the row was last updated (in UTC)">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
 
         <rollback>
             <dropTable tableName="data_mapping"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="data-mapping-2" author="alantibbetts">
+        <createIndex tableName="data_mapping" indexName="idx_dm_ext_data" unique="true">
+            <column name="data_source"/>
+            <column name="data_type"/>
+            <column name="external_id"/>
+        </createIndex>
+
+        <rollback>
+            <dropIndex tableName="data_mapping" indexName="idx_dm_ext_data"/>
         </rollback>
     </changeSet>
 </databaseChangeLog>

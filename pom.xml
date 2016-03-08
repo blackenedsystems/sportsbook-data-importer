@@ -118,6 +118,7 @@
                 <version>${version.liquibase}</version>
                 <configuration>
                     <propertyFile>liquibase.properties</propertyFile>
+                    <promptOnNonLocalDatabase>false</promptOnNonLocalDatabase>
                 </configuration>
             </plugin>
         </plugins>

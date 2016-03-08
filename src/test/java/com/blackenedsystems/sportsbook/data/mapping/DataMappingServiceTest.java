@@ -45,9 +45,9 @@ public class DataMappingServiceTest {
         DataMapping updatedDataMapping = new DataMapping();
         updatedDataMapping.setId(1);
 
-        when(dataMappingDao.save(dataMapping)).thenReturn(updatedDataMapping);
+        when(dataMappingDao.save(dataMapping, DataMappingService.INTERNAL_USER)).thenReturn(updatedDataMapping);
 
-        DataMapping udm = dataMappingService.saveOrUpdate(dataMapping);
+        DataMapping udm = dataMappingService.saveOrUpdate(dataMapping, DataMappingService.INTERNAL_USER);
         assertNotNull(udm);
         assertTrue(udm.getId() > 0);
     }
@@ -61,9 +61,9 @@ public class DataMappingServiceTest {
         dataMapping.setExternalDescription("Football");
         dataMapping.setMappingType(MappingType.SPORT);
 
-        when(dataMappingDao.save(dataMapping)).thenReturn(dataMapping);
+        when(dataMappingDao.save(dataMapping, DataMappingService.INTERNAL_USER)).thenReturn(dataMapping);
 
-        DataMapping udm = dataMappingService.saveOrUpdate(dataMapping);
+        DataMapping udm = dataMappingService.saveOrUpdate(dataMapping, DataMappingService.INTERNAL_USER);
         assertNotNull(udm);
         assertTrue(udm.getId() > 0);
     }
