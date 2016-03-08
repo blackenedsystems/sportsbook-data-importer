@@ -59,6 +59,10 @@ public class BetfairConnector {
     private DefaultHttpClient httpClient = new DefaultHttpClient();
     private String sessionToken;
 
+    public boolean isConnected() {
+        return sessionToken != null;
+    }
+
     public void logon() throws Exception {
         //TODO: tidy this up, remove deprecated code, etc
 
