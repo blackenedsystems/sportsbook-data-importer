@@ -49,8 +49,8 @@ public class ActorService {
     }
 
     /**
-     * Creates (or loads) and actor from the top level of the ActorSytem.  There should really only be one Actor
-     * at this level.
+     * Creates (or loads) and actor from the top level of the ActorSytem.  Each data integration should have one (and
+     * only one) top level actor.
      *
      * @param beanName  Spring bean name.
      * @param actorName Actor name.

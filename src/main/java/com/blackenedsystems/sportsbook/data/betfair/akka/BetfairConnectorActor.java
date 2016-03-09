@@ -54,8 +54,6 @@ public class BetfairConnectorActor extends UntypedActor {
         }
     }
 
-    ;
-
     public static class Connected {
         public ActorRef replyTo;
 
@@ -63,8 +61,6 @@ public class BetfairConnectorActor extends UntypedActor {
             this.replyTo = replyTo;
         }
     }
-
-    ;
 
     public static class Disconnect {
         public ActorRef replyTo;
@@ -74,8 +70,6 @@ public class BetfairConnectorActor extends UntypedActor {
         }
     }
 
-    ;
-
     public static class Disconnected {
         public ActorRef replyTo;
 
@@ -83,6 +77,4 @@ public class BetfairConnectorActor extends UntypedActor {
             this.replyTo = replyTo;
         }
     }
-
-    ;
 }
