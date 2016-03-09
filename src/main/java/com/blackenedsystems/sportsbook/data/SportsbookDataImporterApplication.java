@@ -1,7 +1,7 @@
 package com.blackenedsystems.sportsbook.data;
 
 import akka.actor.ActorRef;
-import akka.dispatch.OnSuccess;
+import akka.dispatch.OnComplete;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
 import com.blackenedsystems.sportsbook.data.akka.ActorService;
@@ -34,11 +34,13 @@ public class SportsbookDataImporterApplication {
 
             Timeout timeout = new Timeout(Duration.create(30, "seconds"));
             Future<Object> future = Patterns.ask(bfwActor, new BetfairWorkflowActor.Start(), timeout);
-            future.onSuccess(new OnSuccess<Object>() {
+            future.onComplete(new OnComplete<Object>() {
                 @Override
-                public void onSuccess(Object result) throws Throwable {
-                    if (result instanceof BetfairWorkflowActor.Complete) {
+                public void onComplete(Throwable throwable, Object result) throws Throwable {
+                    if (result != null && result instanceof BetfairWorkflowActor.Complete) {
                         LOGGER.debug("Got a Complete message as expected!");
+                    } else {
+                        LOGGER.error("Betfair workflow failed.", throwable);
                     }
                 }
             }, actorService.actorSystem().dispatcher());

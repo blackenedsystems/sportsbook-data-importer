@@ -2,7 +2,7 @@ package com.blackenedsystems.sportsbook.data.betfair.akka;
 
 import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
-import akka.dispatch.OnSuccess;
+import akka.dispatch.OnComplete;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
 import com.blackenedsystems.sportsbook.data.akka.ActorService;
@@ -54,13 +54,15 @@ public class BetfairWorkflowActor extends UntypedActor {
 
         Timeout timeout = new Timeout(Duration.create(30, "seconds"));
         Future<Object> future = Patterns.ask(clientActor, new BetfairClientActor.LoadSports(connectedMessage.replyTo), timeout);
-        future.onSuccess(new OnSuccess<Object>() {
+        future.onComplete(new OnComplete<Object>() {
             @Override
-            public void onSuccess(Object result) throws Throwable {
-                if (result instanceof BetfairClientActor.DataLoaded) {
-                    ActorRef bfcRef = actorService.actorFromContext(context(), "BetfairConnectorActor", "betfairConnector");
-                    bfcRef.tell(new Disconnect(((BetfairClientActor.DataLoaded) result).replyTo), self());
+            public void onComplete(Throwable throwable, Object result) throws Throwable {
+                if (throwable != null) {
+                    LOGGER.error("Betfair load data process failed.", throwable);
                 }
+
+                ActorRef bfcRef = actorService.actorFromContext(context(), "BetfairConnectorActor", "betfairConnector");
+                bfcRef.tell(new Disconnect(connectedMessage.replyTo), self());
             }
         }, context().dispatcher());
     }
