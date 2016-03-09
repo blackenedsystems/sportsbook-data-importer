@@ -28,16 +28,14 @@ public class BetfairWorkflowActor extends UntypedActor {
     @Override
     public void onReceive(Object message) throws Exception {
         if (message instanceof Start) {
-            ActorRef bfcRef = actorService.actorOf("BetfairConnectorActor", "betfairConnector");
+            ActorRef bfcRef = actorService.actorFromContext(context(), "BetfairConnectorActor", "betfairConnector");
             bfcRef.tell(new Connect(sender()), self());
 
-        }
-        if (message instanceof Connected) {
-            ActorRef bfcRef = actorService.actorOf("BetfairConnectorActor", "betfairConnector");
+        } else if (message instanceof Connected) {
+            ActorRef bfcRef = actorService.actorFromContext(context(), "BetfairConnectorActor", "betfairConnector");
             bfcRef.tell(new Disconnect(((Connected) message).replyTo), self());
 
-        }
-        if (message instanceof Disconnected) {
+        } else if (message instanceof Disconnected) {
             ((Disconnected) message).replyTo.tell(new Complete(), self());
 
         } else {

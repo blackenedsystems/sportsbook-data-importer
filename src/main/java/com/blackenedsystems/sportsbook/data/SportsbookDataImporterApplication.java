@@ -24,14 +24,13 @@ public class SportsbookDataImporterApplication {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SportsbookDataImporterApplication.class);
 
-
     public static void main(String[] args) {
 
         try {
             ConfigurableApplicationContext applicationContext = SpringApplication.run(SportsbookDataImporterApplication.class, args);
 
             ActorService actorService = (ActorService) applicationContext.getBean("actorService");
-            ActorRef bfwActor = actorService.actorOf("BetfairWorkflowActor", "befairWorkflowActor");
+            ActorRef bfwActor = actorService.actorFromContext("BetfairWorkflowActor", "befairWorkflowActor");
 
             Timeout timeout = new Timeout(Duration.create(30, "seconds"));
             Future<Object> future = Patterns.ask(bfwActor, new BetfairWorkflowActor.Start(), timeout);
@@ -41,8 +40,6 @@ public class SportsbookDataImporterApplication {
                     if (result instanceof BetfairWorkflowActor.Complete) {
                         LOGGER.debug("Got a Complete message as expected!");
                     }
-                    actorService.shutdown();
-                    System.exit(0);
                 }
             }, actorService.actorSystem().dispatcher());
 
