@@ -79,12 +79,14 @@ public class DataMappingServiceDBTest extends DBTest {
                         dataMapping.setExternalDataSource(ExternalDataSource.BETFAIR);
                         dataMapping.setExternalDescription("American Football");
                         dataMapping.setExternalId("2");
+                        dataMapping.setLoadChildren(true);
 
                         assertEquals(0, dataMapping.getId());
 
                         DataMapping udm = dataMappingService.saveOrUpdate(dataMapping, DataMappingService.INTERNAL_USER);
                         assertNotNull(udm);
                         assertTrue(udm.getId() > 0);
+                        assertTrue(udm.isLoadChildren());
                     }
                 }
         );
@@ -137,6 +139,7 @@ public class DataMappingServiceDBTest extends DBTest {
                         assertNotNull(udm);
                         assertEquals(1, udm.getId());
                         assertEquals("Soccer", udm.getExternalDescription());
+                        assertFalse(udm.isLoadChildren());
                     }
                 }
         );
@@ -177,6 +180,7 @@ public class DataMappingServiceDBTest extends DBTest {
 
                         DataMapping dataMapping = odm.get();
                         assertEquals("description", "Football", dataMapping.getExternalDescription());
+                        assertFalse(dataMapping.isLoadChildren());
                     }
                 }
         );

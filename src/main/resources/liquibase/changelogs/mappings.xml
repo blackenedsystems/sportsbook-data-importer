@@ -87,4 +87,19 @@
             <dropIndex tableName="data_mapping" indexName="idx_dm_ext_data"/>
         </rollback>
     </changeSet>
+
+    <changeSet id="data-mapping-3" author="alantibbetts">
+        <addColumn tableName="data_mapping">
+            <column name="load_children"
+                    type="boolean"
+                    defaultValue="false"
+                    remarks="Should the direct children of this data be loaded from the external source.">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <rollback>
+            <dropColumn tableName="data_mapping" columnName="load_children"/>
+        </rollback>
+    </changeSet>
 </databaseChangeLog>

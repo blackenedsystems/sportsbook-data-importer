@@ -15,6 +15,7 @@ public class DataMapping {
     private String externalId;
     private String externalDescription;
     private String sportName;
+    private boolean loadChildren = false;
 
     private LocalDateTime created;
     private String createdBy;
@@ -109,6 +110,14 @@ public class DataMapping {
         this.updatedBy = updatedBy;
     }
 
+    public boolean isLoadChildren() {
+        return loadChildren;
+    }
+
+    public void setLoadChildren(boolean loadChildren) {
+        this.loadChildren = loadChildren;
+    }
+
     @Override
     public String toString() {
         return "DataMapping{" +
@@ -119,6 +128,7 @@ public class DataMapping {
                 ", externalId='" + externalId + '\'' +
                 ", externalDescription='" + externalDescription + '\'' +
                 ", sportName='" + sportName + '\'' +
+                ", loadChildren=" + loadChildren +
                 ", created=" + created +
                 ", createdBy='" + createdBy + '\'' +
                 ", updated=" + updated +
