@@ -37,8 +37,30 @@ public class DataMappingDao extends AbstractDao {
 
         List<DataMapping> dataMappings = jdbcTemplate.query(
                 "SELECT id, data_source, data_type, internal_id, external_id, external_description, sport, " +
-                        "       load_children, created, created_by, updated, updated_by " +
-                        "  FROM data_mapping",
+                "       load_children, created, created_by, updated, updated_by " +
+                "  FROM data_mapping",
+                (resultSet, i) -> {
+                    return mapDataMapping(resultSet);
+                });
+
+        return dataMappings;
+    }
+
+    public List<DataMapping> loadDataMappingsWithLoadChildrenSet(final ExternalDataSource externalDataSource, final MappingType mappingType) {
+        LOGGER.debug("Loading data mappings with load_children set to true for {}/{}.", externalDataSource.toString(), mappingType.toString());
+
+        SqlParameterSource parameters = new MapSqlParameterSource()
+                .addValue("data_source", externalDataSource.toString())
+                .addValue("data_type", mappingType.toString());
+
+        List<DataMapping> dataMappings = namedParameterJdbcTemplate.query(
+                "SELECT id, data_source, data_type, internal_id, external_id, external_description, sport, " +
+                "       load_children, created, created_by, updated, updated_by " +
+                "  FROM data_mapping " +
+                " WHERE data_source = :data_source " +
+                "   AND data_type = :data_type " +
+                "   AND load_children = true",
+                parameters,
                 (resultSet, i) -> {
                     return mapDataMapping(resultSet);
                 });
@@ -56,11 +78,11 @@ public class DataMappingDao extends AbstractDao {
 
         String sql =
                 "SELECT id, data_source, data_type, internal_id, external_id, external_description, sport, " +
-                        "       load_children, created, created_by, updated, updated_by " +
-                        "  FROM data_mapping " +
-                        " WHERE data_source = :data_source " +
-                        "   AND data_type = :data_type " +
-                        "   AND external_id = :external_id ";
+                "       load_children, created, created_by, updated, updated_by " +
+                "  FROM data_mapping " +
+                " WHERE data_source = :data_source " +
+                "   AND data_type = :data_type " +
+                "   AND external_id = :external_id ";
 
         List<DataMapping> dataMappings = namedParameterJdbcTemplate.query(sql, parameters,
                 (resultSet, i) -> {
@@ -96,9 +118,9 @@ public class DataMappingDao extends AbstractDao {
 
         String sql =
                 "INSERT INTO data_mapping ( data_source, data_type, internal_id, external_id, " +
-                        "external_description, sport, load_children, created, created_by, updated, updated_by ) " +
-                        "     VALUES ( :data_source, :data_type, :internal_id, :external_id, :external_description, " +
-                        ":sport, :load_children, :created, :created_by, :updated, :updated_by ) ";
+                "                           external_description, sport, load_children, created, created_by, updated, updated_by ) " +
+                "     VALUES ( :data_source, :data_type, :internal_id, :external_id, :external_description, " +
+                "              :sport, :load_children, :created, :created_by, :updated, :updated_by ) ";
 
         MapSqlParameterSource parameters = new MapSqlParameterSource()
                 .addValue("data_source", dataMapping.getExternalDataSource().toString())

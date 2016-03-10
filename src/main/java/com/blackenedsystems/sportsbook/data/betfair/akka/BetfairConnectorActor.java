@@ -1,7 +1,8 @@
 package com.blackenedsystems.sportsbook.data.betfair.akka;
 
+import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
-import akka.actor.UntypedActor;
+import akka.japi.pf.ReceiveBuilder;
 import com.blackenedsystems.sportsbook.data.betfair.BetfairConnector;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -14,22 +15,18 @@ import javax.inject.Named;
  */
 @Named("BetfairConnectorActor")
 @Scope("prototype")
-public class BetfairConnectorActor extends UntypedActor {
+public class BetfairConnectorActor extends AbstractActor {
 
     @Autowired
     private BetfairConnector betfairConnector;
 
-    @Override
-    public void onReceive(Object message) throws Exception {
-        if (message instanceof Connect) {
-            connectToBetfair((Connect) message);
-
-        } else if (message instanceof Disconnect) {
-            disconnectFromBetfair((Disconnect) message);
-
-        } else {
-            unhandled(message);
-        }
+    public BetfairConnectorActor() {
+        receive(
+                ReceiveBuilder
+                        .match(Connect.class, this::connectToBetfair)
+                        .match(Disconnect.class, this::disconnectFromBetfair)
+                        .build()
+        );
     }
 
     private void disconnectFromBetfair(Disconnect disconnect) throws Exception {

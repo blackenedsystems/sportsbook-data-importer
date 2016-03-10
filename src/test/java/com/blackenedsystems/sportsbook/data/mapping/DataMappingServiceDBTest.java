@@ -185,4 +185,36 @@ public class DataMappingServiceDBTest extends DBTest {
                 }
         );
     }
+
+    @Test
+    public void loadDataMappingsWithLoadChildrenSet_ok() throws Exception {
+        executeTest(
+                new AbstractDBTestExecutor() {
+                    @Override
+                    public String[] getInitialisationSQL() {
+                        return new String[]{
+                                "INSERT INTO data_mapping " +
+                                        "(id, data_source, data_type, external_id, external_description, " +
+                                        " created, created_by, updated, updated_by, load_children) " +
+                                        "VALUES (1, 'BETFAIR', 'SPORT', '1', 'Football'," +
+                                        " CURRENT_TIMESTAMP(), 'system', CURRENT_TIMESTAMP(), 'system', false)",
+                                "INSERT INTO data_mapping " +
+                                        "(id, data_source, data_type, external_id, external_description, " +
+                                        " created, created_by, updated, updated_by, load_children) " +
+                                        "VALUES (2, 'BETFAIR', 'SPORT', '2', 'Tennis'," +
+                                        " CURRENT_TIMESTAMP(), 'system', CURRENT_TIMESTAMP(), 'system', true)"
+                        };
+                    }
+
+                    @Override
+                    public void execute() {
+                        List<DataMapping> dataMappings = dataMappingService.loadDataMappingsWithLoadChildrenSet(ExternalDataSource.BETFAIR, MappingType.SPORT);
+                        assertEquals(1, dataMappings.size());
+                        DataMapping dataMapping = dataMappings.get(0);
+                        assertEquals(2, dataMapping.getId());
+                        assertEquals("Tennis", dataMapping.getExternalDescription());
+                    }
+                }
+        );
+    }
 }

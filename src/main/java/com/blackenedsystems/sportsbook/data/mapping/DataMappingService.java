@@ -40,4 +40,9 @@ public class DataMappingService {
     public Optional<DataMapping> findByExternalId(final ExternalDataSource externalDataSource, final MappingType mappingType, final String externalId) {
         return dataMappingDao.findByExernalId(externalDataSource, mappingType, externalId);
     }
+
+    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+    public List<DataMapping> loadDataMappingsWithLoadChildrenSet(final ExternalDataSource externalDataSource, final MappingType mappingType) {
+        return dataMappingDao.loadDataMappingsWithLoadChildrenSet(externalDataSource, mappingType);
+    }
 }
