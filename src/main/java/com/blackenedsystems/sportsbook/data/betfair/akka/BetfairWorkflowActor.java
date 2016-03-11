@@ -8,6 +8,7 @@ import akka.japi.pf.ReceiveBuilder;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
 import com.blackenedsystems.sportsbook.data.akka.ActorService;
+import com.blackenedsystems.sportsbook.data.betfair.BetfairConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import scala.concurrent.duration.Duration;
 import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static akka.dispatch.Futures.sequence;
 import static com.blackenedsystems.sportsbook.data.betfair.akka.BetfairConnectorActor.*;
@@ -37,6 +39,9 @@ public class BetfairWorkflowActor extends AbstractActor {
     @Autowired
     private ActorService actorService;
 
+    @Autowired
+    private BetfairConfiguration betfairConfiguration;
+
     public BetfairWorkflowActor() {
         receive(
                 ReceiveBuilder
@@ -50,6 +55,23 @@ public class BetfairWorkflowActor extends AbstractActor {
                         })
                         .build()
         );
+    }
+
+    @Override
+    public void preStart() throws Exception {
+        getContext().system().scheduler()
+                .schedule(
+                        Duration.create(betfairConfiguration.initialWorkflowDelay, TimeUnit.SECONDS),
+                        Duration.create(betfairConfiguration.workflowInterval, TimeUnit.SECONDS),
+                        self(),
+                        new Start(),
+                        getContext().dispatcher(),
+                        null);
+    }
+
+    @Override
+    public void postRestart(Throwable reason) throws Exception {
+        // override postRestart so we don't call preStart and schedule a new message
     }
 
     /**
