@@ -37,7 +37,7 @@ public class BetfairDataMappingService {
         }
     }
 
-    public void processCompetitionList(final List<Competition> betfairCompetitions) {
+    public void processCompetitionList(final String sport, final List<Competition> betfairCompetitions) {
         for (Competition betfairCompetition : betfairCompetitions) {
             Optional<DataMapping> dataMapping = dataMappingService.findByExternalId(ExternalDataSource.BETFAIR, MappingType.COMPETITION, betfairCompetition.getId());
             if (!dataMapping.isPresent()) {
@@ -45,6 +45,7 @@ public class BetfairDataMappingService {
                 competitionMapping.setMappingType(MappingType.COMPETITION);
                 competitionMapping.setExternalDataSource(ExternalDataSource.BETFAIR);
                 competitionMapping.setExternalId(betfairCompetition.getId());
+                competitionMapping.setSportName(sport);
 
                 String description = String.format("%s [%s]", betfairCompetition.getName(), betfairCompetition.getRegion());
                 competitionMapping.setExternalDescription(description);

@@ -60,7 +60,7 @@ public class BetfairClientActor extends AbstractActor {
                 // We'll have one Competition Actor per sport.
                 ActorRef competitionActor = actorService.actorFromContext(
                         context(), "BetfairCompetitionsActor", "betfairCompetitions-" + sportMapping.getExternalId());
-                competitionActor.tell(new BetfairCompetitionsActor.ProcessCompetitions(competitions), self());
+                competitionActor.tell(new BetfairCompetitionsActor.ProcessCompetitions(sportMapping.getExternalDescription(), competitions), self());
             }
         }
 
