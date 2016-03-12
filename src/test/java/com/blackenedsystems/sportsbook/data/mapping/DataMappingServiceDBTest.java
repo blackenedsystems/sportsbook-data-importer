@@ -208,7 +208,7 @@ public class DataMappingServiceDBTest extends DBTest {
 
                     @Override
                     public void execute() {
-                        List<DataMapping> dataMappings = dataMappingService.loadDataMappingsWithLoadChildrenSet(ExternalDataSource.BETFAIR, MappingType.SPORT);
+                        List<DataMapping> dataMappings = dataMappingService.loadDataMappingsMarkedForProcessing(ExternalDataSource.BETFAIR, MappingType.SPORT);
                         assertEquals(1, dataMappings.size());
                         DataMapping dataMapping = dataMappings.get(0);
                         assertEquals(2, dataMapping.getId());

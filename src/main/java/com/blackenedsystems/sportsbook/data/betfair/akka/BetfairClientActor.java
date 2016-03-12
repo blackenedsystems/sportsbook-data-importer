@@ -52,7 +52,7 @@ public class BetfairClientActor extends AbstractActor {
      * @throws IOException
      */
     private void loadCompetitions(LoadCompetitions lc) throws IOException {
-        List<DataMapping> sportMappings = dataMappingService.loadDataMappingsWithLoadChildrenSet(ExternalDataSource.BETFAIR, MappingType.SPORT);
+        List<DataMapping> sportMappings = dataMappingService.loadDataMappingsMarkedForProcessing(ExternalDataSource.BETFAIR, MappingType.SPORT);
 
         for (DataMapping sportMapping : sportMappings) {
             List<Competition> competitions = betfairClient.loadCompetitions(sportMapping.getExternalId());

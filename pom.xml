@@ -55,6 +55,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast</artifactId>
+            <!-- Version is managed by Spring Boot starter -->
+        </dependency>
+
         <!-- Apache -->
 
         <dependency>
