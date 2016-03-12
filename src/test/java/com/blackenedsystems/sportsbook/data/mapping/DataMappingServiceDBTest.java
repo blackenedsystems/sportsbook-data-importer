@@ -3,10 +3,13 @@ package com.blackenedsystems.sportsbook.data.mapping;
 import com.blackenedsystems.sportsbook.data.SportsbookDataImporterApplication;
 import com.blackenedsystems.sportsbook.data.test.AbstractDBTestExecutor;
 import com.blackenedsystems.sportsbook.data.test.DBTest;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -27,6 +30,15 @@ public class DataMappingServiceDBTest extends DBTest {
 
     @Autowired
     private DataMappingService dataMappingService;
+
+    @Autowired
+    private CacheManager cacheManager;
+
+    @Before
+    public void setUp() {
+        Cache cache = cacheManager.getCache(DataMappingService.DATA_MAPPINGS_CACHE);
+        cache.clear();
+    }
 
     @Test
     public void loadDataMappings_empty_ok() throws Exception {
@@ -98,7 +110,7 @@ public class DataMappingServiceDBTest extends DBTest {
                 new AbstractDBTestExecutor() {
                     @Override
                     public void execute() {
-                        DataMapping dataMapping = new DataMapping();
+                         DataMapping dataMapping = new DataMapping();
                         dataMapping.setMappingType(MappingType.SPORT);
                         dataMapping.setExternalDataSource(ExternalDataSource.BETFAIR);
                         dataMapping.setExternalDescription("American Football");

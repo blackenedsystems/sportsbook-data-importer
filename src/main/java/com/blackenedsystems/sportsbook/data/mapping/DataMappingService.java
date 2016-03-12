@@ -24,6 +24,7 @@ public class DataMappingService {
 
     // All data mapping data changes triggered by internal processes will be tagged with this.
     public static final String INTERNAL_USER = "system";
+    public static final String DATA_MAPPINGS_CACHE = "data-mappings";
 
     @Autowired
     private DataMappingDao dataMappingDao;
@@ -35,7 +36,7 @@ public class DataMappingService {
 
     @PostConstruct
     public void postConstruct() {
-        this.dataMappingsCache = cacheManager.getCache("data-mappings");
+        this.dataMappingsCache = cacheManager.getCache(DATA_MAPPINGS_CACHE);
     }
 
     @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
