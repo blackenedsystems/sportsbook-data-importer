@@ -51,7 +51,7 @@ public class BetfairWorkflowActor extends AbstractActor {
                         })
                         .match(Connected.class, this::loadData)
                         .match(Disconnected.class, d -> {
-                            d.replyTo.tell(new Complete(), self());
+                            LOGGER.info("Disconnected from Betfair.");
                         })
                         .build()
         );
@@ -81,6 +81,8 @@ public class BetfairWorkflowActor extends AbstractActor {
      * @param connectedMessage contains the replyTo Actor (for Betfair logout)
      */
     private void loadData(final Connected connectedMessage) {
+        LOGGER.info("Connected to Betfair.");
+
         ActorRef clientActor = actorService.actorFromContext(context(), "BetfairClientActor", "betfairClient");
 
         Timeout timeout = new Timeout(Duration.create(10, "seconds"));
@@ -132,8 +134,5 @@ public class BetfairWorkflowActor extends AbstractActor {
     }
 
     public static class Start {
-    }
-
-    public static class Complete {
     }
 }

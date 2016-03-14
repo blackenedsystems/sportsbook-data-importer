@@ -60,6 +60,7 @@ public class DataMappingService {
 
         Optional<DataMapping> dataMapping = loadFromCache(cacheKey);
         if (!dataMapping.isPresent()) {
+            LOGGER.debug("Not found in cache: {}", cacheKey);
             dataMapping = dataMappingDao.findByExernalId(externalDataSource, mappingType, externalId);
             if (dataMapping.isPresent()) {
                 dataMappingsCache.put(cacheKey, dataMapping);
@@ -72,7 +73,6 @@ public class DataMappingService {
     private Optional<DataMapping> loadFromCache(final String cacheKey) {
         Cache.ValueWrapper valueWrapper = dataMappingsCache.get(cacheKey);
         if (valueWrapper != null && valueWrapper.get() != null) {
-            LOGGER.info("Found in cache: {}", cacheKey);
             return (Optional<DataMapping>) valueWrapper.get();
         }
         return Optional.empty();
