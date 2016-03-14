@@ -7,6 +7,7 @@ import com.blackenedsystems.sportsbook.data.akka.ActorService;
 import com.blackenedsystems.sportsbook.data.betfair.BetfairClient;
 import com.blackenedsystems.sportsbook.data.betfair.model.Competition;
 import com.blackenedsystems.sportsbook.data.betfair.model.EventType;
+import com.blackenedsystems.sportsbook.data.betfair.model.MarketType;
 import com.blackenedsystems.sportsbook.data.mapping.DataMapping;
 import com.blackenedsystems.sportsbook.data.mapping.DataMappingService;
 import com.blackenedsystems.sportsbook.data.mapping.ExternalDataSource;
@@ -40,8 +41,24 @@ public class BetfairClientActor extends AbstractActor {
                 ReceiveBuilder
                         .match(LoadSports.class, this::loadSports)
                         .match(LoadCompetitions.class, this::loadCompetitions)
+                        .match(LoadMarketTypes.class, this::loadMarketTypes)
                         .build()
         );
+    }
+
+    /**
+     * Load a list of market types (match odds, handicap, etc) from betfair.
+     *
+     * @param lmt original message for replyTo destination
+     * @throws IOException
+     */
+    private void loadMarketTypes(final LoadMarketTypes lmt) throws IOException {
+        List<MarketType> marketTypes = betfairClient.loadMarketTypes();
+
+        ActorRef marketTypesActor = actorService.actorFromContext(context(), "BetfairMarketTypesActor", "betfairMarketTypes");
+        marketTypesActor.tell(new BetfairMarketTypesActor.ProcessMarketTypes(marketTypes), self());
+
+        sender().tell(new DataLoaded(lmt.replyTo), self());
     }
 
     /**
@@ -51,7 +68,7 @@ public class BetfairClientActor extends AbstractActor {
      * @param lc original message for replyTo destination
      * @throws IOException
      */
-    private void loadCompetitions(LoadCompetitions lc) throws IOException {
+    private void loadCompetitions(final LoadCompetitions lc) throws IOException {
         List<DataMapping> sportMappings = dataMappingService.loadDataMappingsMarkedForProcessing(ExternalDataSource.BETFAIR, MappingType.SPORT);
 
         for (DataMapping sportMapping : sportMappings) {
@@ -73,7 +90,7 @@ public class BetfairClientActor extends AbstractActor {
      * @param ls original message for replyTo destination
      * @throws IOException
      */
-    private void loadSports(LoadSports ls) throws IOException {
+    private void loadSports(final LoadSports ls) throws IOException {
         List<EventType> sportsList = betfairClient.loadSports();
 
         ActorRef sportsActor = actorService.actorFromContext(context(), "BetfairSportsActor", "betfairSports");
@@ -94,6 +111,14 @@ public class BetfairClientActor extends AbstractActor {
         public ActorRef replyTo;
 
         public LoadCompetitions(final ActorRef replyTo) {
+            this.replyTo = replyTo;
+        }
+    }
+
+    public static class LoadMarketTypes {
+        public ActorRef replyTo;
+
+        public LoadMarketTypes(final ActorRef replyTo) {
             this.replyTo = replyTo;
         }
     }

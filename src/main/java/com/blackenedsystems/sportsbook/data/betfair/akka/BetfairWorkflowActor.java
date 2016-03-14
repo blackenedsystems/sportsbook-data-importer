@@ -90,6 +90,7 @@ public class BetfairWorkflowActor extends AbstractActor {
         List<Future<Object>> baseDataFutures = new ArrayList<>();
         baseDataFutures.add(createLoadSportsFuture(connectedMessage, clientActor, timeout));
         baseDataFutures.add(createLoadCompetitionsFuture(connectedMessage, clientActor, timeout));
+        baseDataFutures.add(createLoadMarketTypesFuture(connectedMessage, clientActor, timeout));
 
         Future<Iterable<Object>> sequence = sequence(baseDataFutures, context().dispatcher());
         sequence.onComplete(new OnComplete<Iterable<Object>>() {
@@ -103,6 +104,20 @@ public class BetfairWorkflowActor extends AbstractActor {
                 bfcRef.tell(new Disconnect(connectedMessage.replyTo), self());
             }
         }, context().dispatcher());
+    }
+
+    private Future<Object> createLoadMarketTypesFuture(final Connected connectedMessage, final ActorRef clientActor, final Timeout timeout) {
+        Future<Object> marketTypeFuture = Patterns.ask(clientActor, new BetfairClientActor.LoadMarketTypes(connectedMessage.replyTo), timeout);
+        marketTypeFuture.onFailure(new OnFailure() {
+            @Override
+            public void onFailure(Throwable throwable) throws Throwable {
+                if (throwable != null) {
+                    LOGGER.error("Betfair load market types process failed.", throwable);
+                }
+
+            }
+        }, context().dispatcher());
+        return marketTypeFuture;
     }
 
     private Future<Object> createLoadCompetitionsFuture(final Connected connectedMessage, final ActorRef clientActor, final Timeout timeout) {
