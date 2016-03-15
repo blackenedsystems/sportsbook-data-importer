@@ -61,6 +61,12 @@
             <!-- Version is managed by Spring Boot starter -->
         </dependency>
 
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <!-- Version is managed by Spring Boot starter -->
+        </dependency>
+
         <!-- Apache -->
 
         <dependency>

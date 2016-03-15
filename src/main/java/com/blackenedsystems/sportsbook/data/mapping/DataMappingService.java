@@ -44,6 +44,11 @@ public class DataMappingService {
         return dataMappingDao.loadDataMappings();
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+    public List<DataMapping> loadDataMappings(final ExternalDataSource externalDataSource, final MappingType mappingType, final boolean includeMapped) {
+        return dataMappingDao.loadDataMappings(externalDataSource, mappingType, includeMapped);
+    }
+
     @Transactional
     public DataMapping saveOrUpdate(final DataMapping dataMapping, final String changedBy) {
         if (dataMapping.getId() > 0) {

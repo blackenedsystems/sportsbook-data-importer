@@ -81,6 +81,67 @@ public class DataMappingServiceDBTest extends DBTest {
     }
 
     @Test
+    public void loadDataMappings_unmappedBetfairSports_ok() throws Exception {
+        executeTest(
+                new AbstractDBTestExecutor() {
+                    @Override
+                    public String[] getInitialisationSQL() {
+                        return new String[]{
+                                "INSERT INTO data_mapping " +
+                                        "(id, data_source, data_type, external_id, external_description, " +
+                                        " created, created_by, updated, updated_by) " +
+                                        "VALUES (1, 'BETFAIR', 'SPORT', '1', 'Football'," +
+                                        " CURRENT_TIMESTAMP(), 'system', CURRENT_TIMESTAMP(), 'system')",
+                                "INSERT INTO data_mapping " +
+                                        "(id, data_source, data_type, external_id, external_description, internal_id, " +
+                                        " created, created_by, updated, updated_by) " +
+                                        "VALUES (2, 'BETFAIR', 'SPORT', '2', 'Tennis', '2', " +
+                                        " CURRENT_TIMESTAMP(), 'system', CURRENT_TIMESTAMP(), 'system')"
+                        };
+                    }
+
+                    @Override
+                    public void execute() {
+                        List<DataMapping> dataMappings = dataMappingService.loadDataMappings(ExternalDataSource.BETFAIR, MappingType.SPORT, false);
+                        assertNotNull(dataMappings);
+                        assertEquals(1, dataMappings.size());
+                        DataMapping dataMapping = dataMappings.get(0);
+                        assertEquals("id", 1, dataMapping.getId());
+                        assertEquals("type", MappingType.SPORT, dataMapping.getMappingType());
+                    }
+                });
+    }
+
+    @Test
+    public void loadDataMappings_allBetfairSports_ok() throws Exception {
+        executeTest(
+                new AbstractDBTestExecutor() {
+                    @Override
+                    public String[] getInitialisationSQL() {
+                        return new String[]{
+                                "INSERT INTO data_mapping " +
+                                        "(id, data_source, data_type, external_id, external_description, " +
+                                        " created, created_by, updated, updated_by) " +
+                                        "VALUES (1, 'BETFAIR', 'SPORT', '1', 'Football'," +
+                                        " CURRENT_TIMESTAMP(), 'system', CURRENT_TIMESTAMP(), 'system')",
+                                "INSERT INTO data_mapping " +
+                                        "(id, data_source, data_type, external_id, external_description, internal_id, " +
+                                        " created, created_by, updated, updated_by) " +
+                                        "VALUES (2, 'BETFAIR', 'SPORT', '2', 'Tennis', '2', " +
+                                        " CURRENT_TIMESTAMP(), 'system', CURRENT_TIMESTAMP(), 'system')"
+                        };
+                    }
+
+                    @Override
+                    public void execute() {
+                        List<DataMapping> dataMappings = dataMappingService.loadDataMappings(ExternalDataSource.BETFAIR, MappingType.SPORT, true);
+                        assertNotNull(dataMappings);
+                        assertEquals(2, dataMappings.size());
+                    }
+                });
+    }
+
+    @Test
     public void addDataMapping_ok() throws Exception {
         executeTest(
                 new AbstractDBTestExecutor() {

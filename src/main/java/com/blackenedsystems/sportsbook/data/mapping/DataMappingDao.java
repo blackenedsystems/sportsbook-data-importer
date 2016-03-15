@@ -46,6 +46,34 @@ public class DataMappingDao extends AbstractDao {
         return dataMappings;
     }
 
+
+    public List<DataMapping> loadDataMappings(final ExternalDataSource externalDataSource, final MappingType mappingType, final boolean includeMapped) {
+        LOGGER.debug("Loading data mappings for {}/{}, mapped: {}", externalDataSource, mappingType, includeMapped);
+
+        MapSqlParameterSource parameters = new MapSqlParameterSource()
+                .addValue("data_source", externalDataSource.toString())
+                .addValue("data_type", mappingType.toString());
+
+        String sql = "SELECT id, data_source, data_type, internal_id, external_id, external_description, sport, " +
+                     "       load_children, created, created_by, updated, updated_by " +
+                     "  FROM data_mapping " +
+                     " WHERE data_source = :data_source " +
+                     "   AND data_type = :data_type ";
+
+        if (!includeMapped) {
+            sql = sql + " AND internal_id IS NULL ";
+        }
+
+        List<DataMapping> dataMappings = namedParameterJdbcTemplate.query(
+                sql,
+                parameters,
+                (resultSet, i) -> {
+                    return mapDataMapping(resultSet);
+                });
+
+        return dataMappings;
+    }
+
     public List<DataMapping> loadDataMappingsWithLoadChildrenSet(final ExternalDataSource externalDataSource, final MappingType mappingType) {
         LOGGER.debug("Loading data mappings with load_children set to true for {}/{}.", externalDataSource.toString(), mappingType.toString());
 
