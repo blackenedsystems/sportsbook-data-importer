@@ -14,28 +14,28 @@ import java.util.List;
  * @author Alan Tibbetts
  * @since 09/03/16
  */
-@Named("BetfairSportsActor")
+@Named("BetfairEventTypesActor")
 @Scope("prototype")
-public class BetfairSportsActor extends AbstractActor {
+public class BetfairEventTypesActor extends AbstractActor {
 
     @Autowired
     private BetfairDataMappingService betfairDataMappingService;
 
-    public BetfairSportsActor() {
+    public BetfairEventTypesActor() {
         receive(
                 ReceiveBuilder
-                        .match(ProcessSports.class, ps -> {
-                            betfairDataMappingService.processSportsList(ps.sportsList);
+                        .match(ProcessEventTypes.class, ps -> {
+                            betfairDataMappingService.processEventTypeList(ps.eventTypeList);
                         })
                         .build()
         );
     }
 
-    public static class ProcessSports {
-        public final List<EventType> sportsList;
+    public static class ProcessEventTypes {
+        public final List<EventType> eventTypeList;
 
-        public ProcessSports(final List<EventType> sportsList) {
-            this.sportsList = sportsList;
+        public ProcessEventTypes(final List<EventType> eventTypeList) {
+            this.eventTypeList = eventTypeList;
         }
     }
 }

@@ -25,18 +25,18 @@ public class BetfairCompetitionsActor extends AbstractActor {
         receive(
                 ReceiveBuilder
                         .match(ProcessCompetitions.class, pc -> {
-                            betfairDataMappingService.processCompetitionList(pc.sport, pc.competitionList);
+                            betfairDataMappingService.processCompetitionList(pc.category, pc.competitionList);
                         })
                         .build()
         );
     }
 
     public static class ProcessCompetitions {
-        public final String sport;
+        public final String category;
         public final List<Competition> competitionList;
 
-        public ProcessCompetitions(final String sport, final List<Competition> competitionList) {
-            this.sport = sport;
+        public ProcessCompetitions(final String category, final List<Competition> competitionList) {
+            this.category = category;
             this.competitionList = competitionList;
         }
     }

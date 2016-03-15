@@ -7,7 +7,7 @@ package com.blackenedsystems.sportsbook.data.mapping;
  * @since 2/3/16 16:22
  */
 public enum MappingType {
-    SPORT,
+    CATEGORY,
     COMPETITION,
     MARKET_TYPE
 }

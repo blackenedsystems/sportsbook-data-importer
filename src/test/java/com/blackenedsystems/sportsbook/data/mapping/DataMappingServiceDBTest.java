@@ -63,7 +63,7 @@ public class DataMappingServiceDBTest extends DBTest {
                                 "INSERT INTO data_mapping " +
                                         "(id, data_source, data_type, external_id, external_description, " +
                                         " created, created_by, updated, updated_by) " +
-                                        "VALUES (1, 'BETFAIR', 'SPORT', '1', 'Football'," +
+                                        "VALUES (1, 'BETFAIR', 'CATEGORY', '1', 'Football'," +
                                         " CURRENT_TIMESTAMP(), 'system', CURRENT_TIMESTAMP(), 'system')"
                         };
                     }
@@ -75,7 +75,7 @@ public class DataMappingServiceDBTest extends DBTest {
                         assertEquals(1, dataMappings.size());
                         DataMapping dataMapping = dataMappings.get(0);
                         assertEquals("id", 1, dataMapping.getId());
-                        assertEquals("type", MappingType.SPORT, dataMapping.getMappingType());
+                        assertEquals("type", MappingType.CATEGORY, dataMapping.getMappingType());
                     }
                 });
     }
@@ -90,24 +90,24 @@ public class DataMappingServiceDBTest extends DBTest {
                                 "INSERT INTO data_mapping " +
                                         "(id, data_source, data_type, external_id, external_description, " +
                                         " created, created_by, updated, updated_by) " +
-                                        "VALUES (1, 'BETFAIR', 'SPORT', '1', 'Football'," +
+                                        "VALUES (1, 'BETFAIR', 'CATEGORY', '1', 'Football'," +
                                         " CURRENT_TIMESTAMP(), 'system', CURRENT_TIMESTAMP(), 'system')",
                                 "INSERT INTO data_mapping " +
                                         "(id, data_source, data_type, external_id, external_description, internal_id, " +
                                         " created, created_by, updated, updated_by) " +
-                                        "VALUES (2, 'BETFAIR', 'SPORT', '2', 'Tennis', '2', " +
+                                        "VALUES (2, 'BETFAIR', 'CATEGORY', '2', 'Tennis', '2', " +
                                         " CURRENT_TIMESTAMP(), 'system', CURRENT_TIMESTAMP(), 'system')"
                         };
                     }
 
                     @Override
                     public void execute() {
-                        List<DataMapping> dataMappings = dataMappingService.loadDataMappings(ExternalDataSource.BETFAIR, MappingType.SPORT, false);
+                        List<DataMapping> dataMappings = dataMappingService.loadDataMappings(ExternalDataSource.BETFAIR, MappingType.CATEGORY, false);
                         assertNotNull(dataMappings);
                         assertEquals(1, dataMappings.size());
                         DataMapping dataMapping = dataMappings.get(0);
                         assertEquals("id", 1, dataMapping.getId());
-                        assertEquals("type", MappingType.SPORT, dataMapping.getMappingType());
+                        assertEquals("type", MappingType.CATEGORY, dataMapping.getMappingType());
                     }
                 });
     }
@@ -122,19 +122,19 @@ public class DataMappingServiceDBTest extends DBTest {
                                 "INSERT INTO data_mapping " +
                                         "(id, data_source, data_type, external_id, external_description, " +
                                         " created, created_by, updated, updated_by) " +
-                                        "VALUES (1, 'BETFAIR', 'SPORT', '1', 'Football'," +
+                                        "VALUES (1, 'BETFAIR', 'CATEGORY', '1', 'Football'," +
                                         " CURRENT_TIMESTAMP(), 'system', CURRENT_TIMESTAMP(), 'system')",
                                 "INSERT INTO data_mapping " +
                                         "(id, data_source, data_type, external_id, external_description, internal_id, " +
                                         " created, created_by, updated, updated_by) " +
-                                        "VALUES (2, 'BETFAIR', 'SPORT', '2', 'Tennis', '2', " +
+                                        "VALUES (2, 'BETFAIR', 'CATEGORY', '2', 'Tennis', '2', " +
                                         " CURRENT_TIMESTAMP(), 'system', CURRENT_TIMESTAMP(), 'system')"
                         };
                     }
 
                     @Override
                     public void execute() {
-                        List<DataMapping> dataMappings = dataMappingService.loadDataMappings(ExternalDataSource.BETFAIR, MappingType.SPORT, true);
+                        List<DataMapping> dataMappings = dataMappingService.loadDataMappings(ExternalDataSource.BETFAIR, MappingType.CATEGORY, true);
                         assertNotNull(dataMappings);
                         assertEquals(2, dataMappings.size());
                     }
@@ -148,7 +148,7 @@ public class DataMappingServiceDBTest extends DBTest {
                     @Override
                     public void execute() {
                         DataMapping dataMapping = new DataMapping();
-                        dataMapping.setMappingType(MappingType.SPORT);
+                        dataMapping.setMappingType(MappingType.CATEGORY);
                         dataMapping.setExternalDataSource(ExternalDataSource.BETFAIR);
                         dataMapping.setExternalDescription("American Football");
                         dataMapping.setExternalId("2");
@@ -172,7 +172,7 @@ public class DataMappingServiceDBTest extends DBTest {
                     @Override
                     public void execute() {
                          DataMapping dataMapping = new DataMapping();
-                        dataMapping.setMappingType(MappingType.SPORT);
+                        dataMapping.setMappingType(MappingType.CATEGORY);
                         dataMapping.setExternalDataSource(ExternalDataSource.BETFAIR);
                         dataMapping.setExternalDescription("American Football");
 
@@ -194,7 +194,7 @@ public class DataMappingServiceDBTest extends DBTest {
                                 "INSERT INTO data_mapping " +
                                         "(id, data_source, data_type, external_id, external_description, " +
                                         " created, created_by, updated, updated_by) " +
-                                        "VALUES (1, 'BETFAIR', 'SPORT', '1', 'Football'," +
+                                        "VALUES (1, 'BETFAIR', 'CATEGORY', '1', 'Football'," +
                                         " CURRENT_TIMESTAMP(), 'system', CURRENT_TIMESTAMP(), 'system')"
                         };
                     }
@@ -204,7 +204,7 @@ public class DataMappingServiceDBTest extends DBTest {
                         DataMapping dataMapping = new DataMapping();
                         dataMapping.setId(1);
                         dataMapping.setExternalDataSource(ExternalDataSource.BETFAIR);
-                        dataMapping.setMappingType(MappingType.SPORT);
+                        dataMapping.setMappingType(MappingType.CATEGORY);
                         dataMapping.setExternalId("1");
                         dataMapping.setExternalDescription("Soccer");
 
@@ -224,7 +224,7 @@ public class DataMappingServiceDBTest extends DBTest {
                 new AbstractDBTestExecutor() {
                     @Override
                     public void execute() {
-                        Optional<DataMapping> odm = dataMappingService.findByExternalId(ExternalDataSource.BETFAIR, MappingType.SPORT, "1");
+                        Optional<DataMapping> odm = dataMappingService.findByExternalId(ExternalDataSource.BETFAIR, MappingType.CATEGORY, "1");
                         assertFalse(odm.isPresent());
                     }
                 }
@@ -241,14 +241,14 @@ public class DataMappingServiceDBTest extends DBTest {
                                 "INSERT INTO data_mapping " +
                                         "(id, data_source, data_type, external_id, external_description, " +
                                         " created, created_by, updated, updated_by) " +
-                                        "VALUES (1, 'BETFAIR', 'SPORT', '1', 'Football'," +
+                                        "VALUES (1, 'BETFAIR', 'CATEGORY', '1', 'Football'," +
                                         " CURRENT_TIMESTAMP(), 'system', CURRENT_TIMESTAMP(), 'system')"
                         };
                     }
 
                     @Override
                     public void execute() {
-                        Optional<DataMapping> odm = dataMappingService.findByExternalId(ExternalDataSource.BETFAIR, MappingType.SPORT, "1");
+                        Optional<DataMapping> odm = dataMappingService.findByExternalId(ExternalDataSource.BETFAIR, MappingType.CATEGORY, "1");
                         assertTrue(odm.isPresent());
 
                         DataMapping dataMapping = odm.get();
@@ -269,19 +269,19 @@ public class DataMappingServiceDBTest extends DBTest {
                                 "INSERT INTO data_mapping " +
                                         "(id, data_source, data_type, external_id, external_description, " +
                                         " created, created_by, updated, updated_by, load_children) " +
-                                        "VALUES (1, 'BETFAIR', 'SPORT', '1', 'Football'," +
+                                        "VALUES (1, 'BETFAIR', 'CATEGORY', '1', 'Football'," +
                                         " CURRENT_TIMESTAMP(), 'system', CURRENT_TIMESTAMP(), 'system', false)",
                                 "INSERT INTO data_mapping " +
                                         "(id, data_source, data_type, external_id, external_description, " +
                                         " created, created_by, updated, updated_by, load_children) " +
-                                        "VALUES (2, 'BETFAIR', 'SPORT', '2', 'Tennis'," +
+                                        "VALUES (2, 'BETFAIR', 'CATEGORY', '2', 'Tennis'," +
                                         " CURRENT_TIMESTAMP(), 'system', CURRENT_TIMESTAMP(), 'system', true)"
                         };
                     }
 
                     @Override
                     public void execute() {
-                        List<DataMapping> dataMappings = dataMappingService.loadDataMappingsMarkedForProcessing(ExternalDataSource.BETFAIR, MappingType.SPORT);
+                        List<DataMapping> dataMappings = dataMappingService.loadDataMappingsMarkedForProcessing(ExternalDataSource.BETFAIR, MappingType.CATEGORY);
                         assertEquals(1, dataMappings.size());
                         DataMapping dataMapping = dataMappings.get(0);
                         assertEquals(2, dataMapping.getId());

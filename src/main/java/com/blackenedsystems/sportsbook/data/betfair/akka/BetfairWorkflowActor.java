@@ -75,7 +75,7 @@ public class BetfairWorkflowActor extends AbstractActor {
     }
 
     /**
-     * Asynchronously loads all of the base data (sports, competitions, markets, etc).  When all of the data has been
+     * Asynchronously loads all of the base data (eventTypes, competitions, markets, etc).  When all of the data has been
      * downloaded from Betfair (but not necessarily processed) we can log out of Betfair.
      *
      * @param connectedMessage contains the replyTo Actor (for Betfair logout)
@@ -88,7 +88,7 @@ public class BetfairWorkflowActor extends AbstractActor {
         Timeout timeout = new Timeout(Duration.create(10, "seconds"));
 
         List<Future<Object>> baseDataFutures = new ArrayList<>();
-        baseDataFutures.add(createLoadSportsFuture(connectedMessage, clientActor, timeout));
+        baseDataFutures.add(createLoadEventTypesFuture(connectedMessage, clientActor, timeout));
         baseDataFutures.add(createLoadCompetitionsFuture(connectedMessage, clientActor, timeout));
         baseDataFutures.add(createLoadMarketTypesFuture(connectedMessage, clientActor, timeout));
 
@@ -134,18 +134,18 @@ public class BetfairWorkflowActor extends AbstractActor {
         return competitionFuture;
     }
 
-    private Future<Object> createLoadSportsFuture(final Connected connectedMessage, final ActorRef clientActor, final Timeout timeout) {
-        Future<Object> sportFuture = Patterns.ask(clientActor, new BetfairClientActor.LoadSports(connectedMessage.replyTo), timeout);
-        sportFuture.onFailure(new OnFailure() {
+    private Future<Object> createLoadEventTypesFuture(final Connected connectedMessage, final ActorRef clientActor, final Timeout timeout) {
+        Future<Object> eventTypeFuture = Patterns.ask(clientActor, new BetfairClientActor.LoadEventTypes(connectedMessage.replyTo), timeout);
+        eventTypeFuture.onFailure(new OnFailure() {
             @Override
             public void onFailure(Throwable throwable) throws Throwable {
                 if (throwable != null) {
-                    LOGGER.error("Betfair load sports data process failed.", throwable);
+                    LOGGER.error("Betfair load eventType(/category) data process failed.", throwable);
                 }
 
             }
         }, context().dispatcher());
-        return sportFuture;
+        return eventTypeFuture;
     }
 
     public static class Start {

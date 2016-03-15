@@ -40,7 +40,7 @@ public class DataMappingServiceTest {
         dataMapping.setExternalDataSource(ExternalDataSource.BETFAIR);
         dataMapping.setExternalId("1");
         dataMapping.setExternalDescription("Football");
-        dataMapping.setMappingType(MappingType.SPORT);
+        dataMapping.setMappingType(MappingType.CATEGORY);
 
         DataMapping updatedDataMapping = new DataMapping();
         updatedDataMapping.setId(1);
@@ -59,7 +59,7 @@ public class DataMappingServiceTest {
         dataMapping.setExternalDataSource(ExternalDataSource.BETFAIR);
         dataMapping.setExternalId("1");
         dataMapping.setExternalDescription("Football");
-        dataMapping.setMappingType(MappingType.SPORT);
+        dataMapping.setMappingType(MappingType.CATEGORY);
 
         when(dataMappingDao.save(dataMapping, DataMappingService.INTERNAL_USER)).thenReturn(dataMapping);
 

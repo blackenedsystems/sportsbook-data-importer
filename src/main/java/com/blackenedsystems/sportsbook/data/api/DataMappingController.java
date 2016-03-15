@@ -31,7 +31,7 @@ public class DataMappingController {
 
     /**
      * @param externalDataSource original source of the data, e.g. BETFAIR
-     * @param mappingType the type of mappings to load, e.g. SPORT, COMPETITION, etc
+     * @param mappingType the type of mappings to load, e.g. CATEGORY, COMPETITION, etc
      * @param includeMapped include data that has already been mapped to internal structures?
      * @return a list of data mappings
      */

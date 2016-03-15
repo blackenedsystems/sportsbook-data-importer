@@ -39,7 +39,7 @@ public class BetfairClientActor extends AbstractActor {
     public BetfairClientActor() {
         receive(
                 ReceiveBuilder
-                        .match(LoadSports.class, this::loadSports)
+                        .match(LoadEventTypes.class, this::loadEventTypes)
                         .match(LoadCompetitions.class, this::loadCompetitions)
                         .match(LoadMarketTypes.class, this::loadMarketTypes)
                         .build()
@@ -62,22 +62,22 @@ public class BetfairClientActor extends AbstractActor {
     }
 
     /**
-     * Load the list of betfair sport data mappings that have been marked with load_children equal to true.  For each of
-     * those send a message to the
+     * Load the list of betfair eventType/category data mappings that have been marked with load_children equal to true.  For each of
+     * those send a message to a CompetitionActor for further processing.
      *
      * @param lc original message for replyTo destination
      * @throws IOException
      */
     private void loadCompetitions(final LoadCompetitions lc) throws IOException {
-        List<DataMapping> sportMappings = dataMappingService.loadDataMappingsMarkedForProcessing(ExternalDataSource.BETFAIR, MappingType.SPORT);
+        List<DataMapping> categoryMappings = dataMappingService.loadDataMappingsMarkedForProcessing(ExternalDataSource.BETFAIR, MappingType.CATEGORY);
 
-        for (DataMapping sportMapping : sportMappings) {
-            List<Competition> competitions = betfairClient.loadCompetitions(sportMapping.getExternalId());
+        for (DataMapping categoryMapping : categoryMappings) {
+            List<Competition> competitions = betfairClient.loadCompetitions(categoryMapping.getExternalId());
             if (competitions.size() > 0) {
-                // We'll have one Competition Actor per sport.
+                // We'll have one Competition Actor per category.
                 ActorRef competitionActor = actorService.actorFromContext(
-                        context(), "BetfairCompetitionsActor", "betfairCompetitions-" + sportMapping.getExternalId());
-                competitionActor.tell(new BetfairCompetitionsActor.ProcessCompetitions(sportMapping.getExternalDescription(), competitions), self());
+                        context(), "BetfairCompetitionsActor", "betfairCompetitions-" + categoryMapping.getExternalId());
+                competitionActor.tell(new BetfairCompetitionsActor.ProcessCompetitions(categoryMapping.getExternalDescription(), competitions), self());
             }
         }
 
@@ -85,24 +85,24 @@ public class BetfairClientActor extends AbstractActor {
     }
 
     /**
-     * Load a list of sports from betfair and add them to our data_mapping table (if not already there).
+     * Load a list of eventTypes (/categories) from betfair and add them to our data_mapping table (if not already there).
      *
-     * @param ls original message for replyTo destination
+     * @param loadEventTypes original message for replyTo destination
      * @throws IOException
      */
-    private void loadSports(final LoadSports ls) throws IOException {
-        List<EventType> sportsList = betfairClient.loadSports();
+    private void loadEventTypes(final LoadEventTypes loadEventTypes) throws IOException {
+        List<EventType> eventTypeList = betfairClient.loadEventTypes();
 
-        ActorRef sportsActor = actorService.actorFromContext(context(), "BetfairSportsActor", "betfairSports");
-        sportsActor.tell(new BetfairSportsActor.ProcessSports(sportsList), self());
+        ActorRef eventTypesActor = actorService.actorFromContext(context(), "BetfairEventTypesActor", "betfairEventTypes");
+        eventTypesActor.tell(new BetfairEventTypesActor.ProcessEventTypes(eventTypeList), self());
 
-        sender().tell(new DataLoaded(ls.replyTo), self());
+        sender().tell(new DataLoaded(loadEventTypes.replyTo), self());
     }
 
-    public static class LoadSports {
+    public static class LoadEventTypes {
         public ActorRef replyTo;
 
-        public LoadSports(final ActorRef replyTo) {
+        public LoadEventTypes(final ActorRef replyTo) {
             this.replyTo = replyTo;
         }
     }

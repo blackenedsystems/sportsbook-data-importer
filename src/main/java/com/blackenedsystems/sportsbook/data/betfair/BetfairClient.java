@@ -46,11 +46,11 @@ public class BetfairClient {
     }
 
     /**
-     * @return a list of Sports in Betfair's structure, using the default locale for strings.
+     * @return a list of eventTypes/Categories in Betfair's structure, using the default locale for strings.
      * @throws IOException
      */
-    public List<EventType> loadSports() throws IOException {
-        return loadSports(Locale.getDefault());
+    public List<EventType> loadEventTypes() throws IOException {
+        return loadEventTypes(Locale.getDefault());
     }
 
     /**
@@ -58,39 +58,39 @@ public class BetfairClient {
      * @return a list of Sports in Betfair's structure, using the supplied locale for strings.
      * @throws IOException
      */
-    public List<EventType> loadSports(final Locale locale) throws IOException {
+    public List<EventType> loadEventTypes(final Locale locale) throws IOException {
         Map<String, Object> params = new HashMap<>();
         params.put(FILTER, new MarketFilter());
         params.put(LOCALE, locale.toString());
 
         String result = betfairConnector.postRequest(APIOperation.LISTEVENTTYPES, params);
-        LOGGER.debug("Result of loadSports: {}", result);
+        LOGGER.debug("Result of loadEventTypes: {}", result);
 
         List<EventTypeWrapper> etw = Arrays.asList(new ObjectMapper().readValue(result, EventTypeWrapper[].class));
         return EventTypeWrapper.extractEventTypes(etw);
     }
 
     /**
-     * @param sportId betfair sport id, used to filter the list of competitions returned.
-     * @return a list of competitions in Betfair's structure for the chosen sport, using the default locale for strings.
+     * @param eventTypeId betfair eventType id, used to filter the list of competitions returned.
+     * @return a list of competitions in Betfair's structure for the chosen eventType, using the default locale for strings.
      * @throws IOException
      */
-    public List<Competition> loadCompetitions(final String sportId) throws IOException {
-        return loadCompetitions(sportId, Locale.getDefault());
+    public List<Competition> loadCompetitions(final String eventTypeId) throws IOException {
+        return loadCompetitions(eventTypeId, Locale.getDefault());
     }
 
     /**
-     * @param sportId betfair sport id, used to filter the list of competitions returned.
+     * @param eventTypeId betfair eventType id, used to filter the list of competitions returned.
      * @param locale  locale to use for strings returned by Betfair
-     * @return a list of competitions in Betfair's structure for the chosen sport, using the supplied locale for strings.
+     * @return a list of competitions in Betfair's structure for the chosen eventType, using the supplied locale for strings.
      * @throws IOException
      */
-    public List<Competition> loadCompetitions(final String sportId, final Locale locale) throws IOException {
-        HashSet<String> sportIdSet = new HashSet<>();
-        sportIdSet.add(sportId);
+    public List<Competition> loadCompetitions(final String eventTypeId, final Locale locale) throws IOException {
+        HashSet<String> eventTypeIdSet = new HashSet<>();
+        eventTypeIdSet.add(eventTypeId);
 
         MarketFilter filter = new MarketFilter();
-        filter.setEventTypeIds(sportIdSet);
+        filter.setEventTypeIds(eventTypeIdSet);
 
         Map<String, Object> params = new HashMap<>();
         params.put(FILTER, filter);
