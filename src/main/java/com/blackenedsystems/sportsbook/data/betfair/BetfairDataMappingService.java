@@ -54,7 +54,7 @@ public class BetfairDataMappingService {
                 competitionMapping.setMappingType(MappingType.COMPETITION);
                 competitionMapping.setExternalDataSource(ExternalDataSource.BETFAIR);
                 competitionMapping.setExternalId(betfairCompetition.getId());
-                competitionMapping.setSportName(category);
+                competitionMapping.setCategoryName(category);
 
                 String description = String.format("%s [%s]", betfairCompetition.getName(), betfairCompetition.getRegion());
                 competitionMapping.setExternalDescription(description);

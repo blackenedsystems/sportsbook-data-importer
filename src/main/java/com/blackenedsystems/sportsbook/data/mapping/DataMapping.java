@@ -14,7 +14,7 @@ public class DataMapping {
     private String internalId;
     private String externalId;
     private String externalDescription;
-    private String sportName;
+    private String categoryName;
     private boolean loadChildren = false;
 
     private LocalDateTime created;
@@ -70,12 +70,12 @@ public class DataMapping {
         this.externalDescription = externalDescription;
     }
 
-    public String getSportName() {
-        return sportName;
+    public String getCategoryName() {
+        return categoryName;
     }
 
-    public void setSportName(String sportName) {
-        this.sportName = sportName;
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
     }
 
     public LocalDateTime getCreated() {
@@ -127,7 +127,7 @@ public class DataMapping {
                 ", internalId='" + internalId + '\'' +
                 ", externalId='" + externalId + '\'' +
                 ", externalDescription='" + externalDescription + '\'' +
-                ", sportName='" + sportName + '\'' +
+                ", categoryName='" + categoryName + '\'' +
                 ", loadChildren=" + loadChildren +
                 ", created=" + created +
                 ", createdBy='" + createdBy + '\'' +

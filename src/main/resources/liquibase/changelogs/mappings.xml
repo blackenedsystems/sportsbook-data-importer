@@ -22,7 +22,7 @@
 
             <column name="data_type"
                     type="varchar(50)"
-                    remarks="Type of data, e.g. sport, competition, etc.">
+                    remarks="Type of data, e.g. category, competition, etc.">
                 <constraints nullable="false"/>
             </column>
 
@@ -42,9 +42,9 @@
                 <constraints nullable="false"/>
             </column>
 
-            <column name="sport"
+            <column name="category"
                     type="varchar(50)"
-                    remarks="The sport to which this data belongs, e.g. competition may have same name in multiple sports."/>
+                    remarks="The category to which this data belongs, e.g. competition may have same name in multiple categories."/>
 
             <column name="created"
                     type="datetime"
