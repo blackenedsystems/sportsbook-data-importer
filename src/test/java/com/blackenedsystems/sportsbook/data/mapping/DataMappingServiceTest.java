@@ -1,5 +1,9 @@
 package com.blackenedsystems.sportsbook.data.mapping;
 
+import com.blackenedsystems.sportsbook.data.mapping.dao.DataMappingDao;
+import com.blackenedsystems.sportsbook.data.mapping.model.DataMapping;
+import com.blackenedsystems.sportsbook.data.mapping.model.ExternalDataSource;
+import com.blackenedsystems.sportsbook.data.mapping.model.MappingType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;

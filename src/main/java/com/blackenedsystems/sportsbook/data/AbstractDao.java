@@ -1,4 +1,4 @@
-package com.blackenedsystems.sportsbook.data.common;
+package com.blackenedsystems.sportsbook.data;
 
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 

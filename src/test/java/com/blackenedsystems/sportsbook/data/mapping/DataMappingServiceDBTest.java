@@ -1,6 +1,9 @@
 package com.blackenedsystems.sportsbook.data.mapping;
 
 import com.blackenedsystems.sportsbook.data.SportsbookDataImporterApplication;
+import com.blackenedsystems.sportsbook.data.mapping.model.DataMapping;
+import com.blackenedsystems.sportsbook.data.mapping.model.ExternalDataSource;
+import com.blackenedsystems.sportsbook.data.mapping.model.MappingType;
 import com.blackenedsystems.sportsbook.data.test.AbstractDBTestExecutor;
 import com.blackenedsystems.sportsbook.data.test.DBTest;
 import org.junit.Before;

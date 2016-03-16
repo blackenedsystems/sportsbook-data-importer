@@ -8,10 +8,10 @@ import com.blackenedsystems.sportsbook.data.betfair.BetfairClient;
 import com.blackenedsystems.sportsbook.data.betfair.model.Competition;
 import com.blackenedsystems.sportsbook.data.betfair.model.EventType;
 import com.blackenedsystems.sportsbook.data.betfair.model.MarketType;
-import com.blackenedsystems.sportsbook.data.mapping.DataMapping;
 import com.blackenedsystems.sportsbook.data.mapping.DataMappingService;
-import com.blackenedsystems.sportsbook.data.mapping.ExternalDataSource;
-import com.blackenedsystems.sportsbook.data.mapping.MappingType;
+import com.blackenedsystems.sportsbook.data.mapping.model.DataMapping;
+import com.blackenedsystems.sportsbook.data.mapping.model.ExternalDataSource;
+import com.blackenedsystems.sportsbook.data.mapping.model.MappingType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 

@@ -1,4 +1,4 @@
-package com.blackenedsystems.sportsbook.data.mapping;
+package com.blackenedsystems.sportsbook.data.mapping.model;
 
 import java.time.LocalDateTime;
 

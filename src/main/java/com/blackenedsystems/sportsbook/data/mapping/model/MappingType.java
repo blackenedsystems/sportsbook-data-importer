@@ -1,4 +1,4 @@
-package com.blackenedsystems.sportsbook.data.mapping;
+package com.blackenedsystems.sportsbook.data.mapping.model;
 
 /**
  * The various types of data that require to be mapped from external data sources to the internal data structure.

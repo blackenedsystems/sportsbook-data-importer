@@ -1,0 +1,81 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="translations-1" author="alantibbetts">
+        <createTable tableName="translation"
+                     remarks="Translations for various strings across the system">
+            <column name="id"
+                    autoIncrement="true"
+                    type="int"
+                    remarks="Primary Key">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="entity_type"
+                    type="varchar(50)"
+                    remarks="Type of data, e.g. category, competition, etc.">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="language"
+                    type="varchar(2)"
+                    remarks="Two letter iso_code indicating the language of this translation.">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="entity_key"
+                    type="int"
+                    remarks="Primary key of the parent entity.">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="translation"
+                    type="varchar(50)"
+                    remarks="The name of the entity translated into the specified language.">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created"
+                    type="datetime"
+                    remarks="Who created this row.">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_by"
+                    type="varchar(20)"
+                    remarks="When this row was created (in UTC)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="updated"
+                    type="datetime"
+                    remarks="Last person to update this row.">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="updated_by"
+                    type="varchar(20)"
+                    remarks="When the row was last updated (in UTC)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="translation"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="translations-2" author="alantibbetts">
+        <createIndex tableName="translation" indexName="idx_tran_type" unique="true">
+            <column name="entity_type"/>
+            <column name="language"/>
+            <column name="entity_key"/>
+        </createIndex>
+
+        <rollback>
+            <dropIndex tableName="translation" indexName="idx_tran_type"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

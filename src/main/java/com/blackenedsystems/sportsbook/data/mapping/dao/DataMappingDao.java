@@ -1,6 +1,9 @@
-package com.blackenedsystems.sportsbook.data.mapping;
+package com.blackenedsystems.sportsbook.data.mapping.dao;
 
-import com.blackenedsystems.sportsbook.data.common.AbstractDao;
+import com.blackenedsystems.sportsbook.data.AbstractDao;
+import com.blackenedsystems.sportsbook.data.mapping.model.DataMapping;
+import com.blackenedsystems.sportsbook.data.mapping.model.ExternalDataSource;
+import com.blackenedsystems.sportsbook.data.mapping.model.MappingType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,14 +67,12 @@ public class DataMappingDao extends AbstractDao {
             sql = sql + " AND internal_id IS NULL ";
         }
 
-        List<DataMapping> dataMappings = namedParameterJdbcTemplate.query(
+        return namedParameterJdbcTemplate.query(
                 sql,
                 parameters,
                 (resultSet, i) -> {
                     return mapDataMapping(resultSet);
                 });
-
-        return dataMappings;
     }
 
     public List<DataMapping> loadDataMappingsWithLoadChildrenSet(final ExternalDataSource externalDataSource, final MappingType mappingType) {

@@ -1,0 +1,78 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="countries-1" author="alantibbetts">
+        <createTable tableName="country">
+            <column name="id"
+                    autoIncrement="true"
+                    type="int"
+                    remarks="Primary Key">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="iso_code_2"
+                    type="varchar(2)"
+                    remarks="ISO 3166-1, two letter code.">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="iso_code_3"
+                    type="varchar(3)"
+                    remarks="ISO 3166-1, three letter code.">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="iso_code_numeric"
+                    type="varchar(3)"
+                    remarks="ISO 3166-1, (three digit) numeric code.">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="default_name"
+                    type="varchar(50)"
+                    remarks="Name of this country in system default language">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created"
+                    type="datetime"
+                    remarks="Who created this row.">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_by"
+                    type="varchar(20)"
+                    remarks="When this row was created (in UTC)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="updated"
+                    type="datetime"
+                    remarks="Last person to update this row.">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="updated_by"
+                    type="varchar(20)"
+                    remarks="When the row was last updated (in UTC)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="country"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="countries-2" author="alantibbetts">
+        <createIndex tableName="country" indexName="idx_cnt_iso2" unique="true">
+            <column name="iso_code_2"/>
+        </createIndex>
+
+        <rollback>
+            <dropIndex tableName="country" indexName="idx_cnt_iso2"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>
