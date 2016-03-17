@@ -15,8 +15,8 @@ public class Competition extends CoreEntity {
 
     private int id;
     private String name;
-    private Category category;
-    private Country country;
+    private int categoryId;
+    private String countryCode;
     private Region region;
 
     public int getId() {
@@ -35,20 +35,20 @@ public class Competition extends CoreEntity {
         this.name = name;
     }
 
-    public Category getCategory() {
-        return category;
+    public int getCategoryId() {
+        return categoryId;
     }
 
-    public void setCategory(Category category) {
-        this.category = category;
+    public void setCategoryId(int categoryId) {
+        this.categoryId = categoryId;
     }
 
-    public Country getCountry() {
-        return country;
+    public String getCountryCode() {
+        return countryCode;
     }
 
-    public void setCountry(Country country) {
-        this.country = country;
+    public void setCountryCode(String country) {
+        this.countryCode = country;
     }
 
     public Region getRegion() {
@@ -64,9 +64,9 @@ public class Competition extends CoreEntity {
         return "Competition{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", category=" + category +
-                ", country=" + country +
-                ", region=" + region +
+                ", category=" + categoryId +
+                ", country='" + countryCode + '\'' +
+                ", region='" + region + '\'' +
                 super.toString() +
                 '}';
     }

@@ -2,6 +2,7 @@ package com.blackenedsystems.sportsbook.data.internal.dao;
 
 import com.blackenedsystems.sportsbook.data.AbstractDao;
 import com.blackenedsystems.sportsbook.data.internal.model.Country;
+import com.blackenedsystems.sportsbook.data.internal.model.EntityType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -22,13 +23,14 @@ public class CountryDao extends AbstractDao {
 
     public List<Country> loadCountries(final String languageCode) {
         MapSqlParameterSource parameters = new MapSqlParameterSource()
+                .addValue("entityType", EntityType.COUNTRY.toString())
                 .addValue("language", languageCode);
 
         String sql =
                 "SELECT c.id, c.iso_code_2, c.iso_code_3, c.iso_code_numeric, c.default_name, t.translation, " +
                 "       c.created, c.created_by, c.updated, c.updated_by " +
                 "  FROM country c " +
-                "  LEFT JOIN translation t ON t.entity_type = 'COUNTRY' AND t.language = :language AND t.entity_key = c.id ";
+                "  LEFT JOIN translation t ON t.entity_type = :entityType AND t.language = :language AND t.entity_key = c.id ";
 
         return namedParameterJdbcTemplate.query(
                 sql,

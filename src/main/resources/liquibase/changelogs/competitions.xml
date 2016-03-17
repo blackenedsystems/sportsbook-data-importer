@@ -1,0 +1,99 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="competitions-1" author="alantibbetts">
+        <createTable tableName="competition">
+            <column name="id"
+                    autoIncrement="true"
+                    type="int"
+                    remarks="Primary Key">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="default_name"
+                    type="varchar(50)"
+                    remarks="Name of this competition in system default language">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="category_id"
+                    type="int"
+                    remarks="Category to which this competition belongs">
+                <constraints nullable="false" foreignKeyName="fk_comp_cat" references="category(id)"/>
+            </column>
+
+            <column name="country_code"
+                    type="varchar(2)"
+                    remarks="Country to which this competition belongs.">
+                <constraints foreignKeyName="fk_comp_country" references="country(iso_code_2)"/>
+            </column>
+
+            <column name="region"
+                    type="varchar(25)"
+                    remarks="region to which this competition belongs, should be populated if no country.">
+            </column>
+
+            <column name="created"
+                    type="datetime"
+                    remarks="Who created this row.">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_by"
+                    type="varchar(20)"
+                    remarks="When this row was created (in UTC)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="updated"
+                    type="datetime"
+                    remarks="Last person to update this row.">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="updated_by"
+                    type="varchar(20)"
+                    remarks="When the row was last updated (in UTC)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="competition"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="competitions-2" author="alantibbetts">
+        <createIndex tableName="competition" indexName="idx_comp_category" unique="true">
+            <column name="category_id"/>
+        </createIndex>
+
+        <rollback>
+            <dropIndex tableName="competition" indexName="idx_comp_category"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="competitions-3" author="alantibbetts">
+        <createIndex tableName="competition" indexName="idx_comp_cat_country" unique="true">
+            <column name="category_id"/>
+            <column name="country_code"/>
+        </createIndex>
+
+        <rollback>
+            <dropIndex tableName="competition" indexName="idx_comp_cat_country"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="competitions-4" author="alantibbetts">
+        <createIndex tableName="competition" indexName="idx_comp_cat_region" unique="true">
+            <column name="category_id"/>
+            <column name="region"/>
+        </createIndex>
+
+        <rollback>
+            <dropIndex tableName="competition" indexName="idx_comp_cat_region"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

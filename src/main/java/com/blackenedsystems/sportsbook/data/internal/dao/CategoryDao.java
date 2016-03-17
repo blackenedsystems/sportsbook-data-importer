@@ -1,6 +1,7 @@
 package com.blackenedsystems.sportsbook.data.internal.dao;
 
 import com.blackenedsystems.sportsbook.data.internal.model.Category;
+import com.blackenedsystems.sportsbook.data.internal.model.EntityType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -21,12 +22,13 @@ public class CategoryDao {
 
     public List<Category> loadCategories(final String languageCode) {
         MapSqlParameterSource parameters = new MapSqlParameterSource()
+                .addValue("entityType", EntityType.CATEGORY.toString())
                 .addValue("language", languageCode);
 
         String sql =
                 "SELECT c.id, c.default_name, t.translation, c.created, c.created_by, c.updated, c.updated_by " +
                         "  FROM category c " +
-                        "  LEFT JOIN translation t ON t.entity_type = 'CATEGORY' AND t.language = :language AND t.entity_key = c.id ";
+                        "  LEFT JOIN translation t ON t.entity_type = :entityType AND t.language = :language AND t.entity_key = c.id ";
 
         return namedParameterJdbcTemplate.query(
                 sql,
