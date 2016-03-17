@@ -9,5 +9,6 @@
     <include file="./changelogs/translations.xml" relativeToChangelogFile="true"/>
     <include file="./changelogs/categories.xml" relativeToChangelogFile="true"/>
     <include file="./changelogs/data/categories.xml" relativeToChangelogFile="true"/>
+    <include file="./changelogs/competitions.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
 
