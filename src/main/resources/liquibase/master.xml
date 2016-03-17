@@ -7,5 +7,6 @@
     <include file="./changelogs/countries.xml" relativeToChangelogFile="true"/>
     <include file="./changelogs/data/countries.xml" relativeToChangelogFile="true"/>
     <include file="./changelogs/translations.xml" relativeToChangelogFile="true"/>
+    <include file="./changelogs/categories.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
 

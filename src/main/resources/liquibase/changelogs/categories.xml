@@ -3,9 +3,8 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
 
-    <changeSet id="translations-1" author="alantibbetts">
-        <createTable tableName="translation"
-                     remarks="Translations for various strings across the system">
+    <changeSet id="categories-1" author="alantibbetts">
+        <createTable tableName="category">
             <column name="id"
                     autoIncrement="true"
                     type="int"
@@ -13,27 +12,9 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
 
-            <column name="entity_type"
+            <column name="default_name"
                     type="varchar(50)"
-                    remarks="Type of data, e.g. category, competition, etc.">
-                <constraints nullable="false"/>
-            </column>
-
-            <column name="language"
-                    type="varchar(2)"
-                    remarks="Two letter iso_code indicating the language of this translation.">
-                <constraints nullable="false"/>
-            </column>
-
-            <column name="entity_key"
-                    type="int"
-                    remarks="Primary key of the parent entity.">
-                <constraints nullable="false"/>
-            </column>
-
-            <column name="translation"
-                    type="varchar(50)"
-                    remarks="The name of the entity translated into the specified language.">
+                    remarks="Name of this category in system default language">
                 <constraints nullable="false"/>
             </column>
 
@@ -63,19 +44,7 @@
         </createTable>
 
         <rollback>
-            <dropTable tableName="translation"/>
+            <dropTable tableName="category"/>
         </rollback>
     </changeSet>
-
-    <changeSet id="translations-2" author="alantibbetts">
-        <createIndex tableName="translation" indexName="idx_tran_type" unique="true">
-            <column name="entity_type"/>
-            <column name="language"/>
-            <column name="entity_key"/>
-        </createIndex>
-
-        <rollback>
-            <dropIndex tableName="translation" indexName="idx_tran_type"/>
-        </rollback>
-        </changeSet>
 </databaseChangeLog>
