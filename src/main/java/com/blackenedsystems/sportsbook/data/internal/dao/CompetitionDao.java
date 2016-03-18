@@ -31,7 +31,7 @@ public class CompetitionDao {
         String sql =
                 "SELECT c.id, c.default_name, c.region, c.country_code, c.category_id, t.translation, c.created, c.created_by, c.updated, c.updated_by " +
                         "  FROM competition c " +
-                        "  LEFT JOIN translation t ON t.entity_type = :entityType AND t.language = :language AND t.entity_key = c.id ";
+                        "  LEFT JOIN translation t ON t.entity_type = :entityType AND t.language_code = :language AND t.entity_key = c.id ";
 
         return namedParameterJdbcTemplate.query(
                 sql,

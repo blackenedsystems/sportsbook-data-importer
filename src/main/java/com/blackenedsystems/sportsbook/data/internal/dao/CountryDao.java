@@ -30,7 +30,7 @@ public class CountryDao extends AbstractDao {
                 "SELECT c.id, c.iso_code_2, c.iso_code_3, c.iso_code_numeric, c.default_name, t.translation, " +
                 "       c.created, c.created_by, c.updated, c.updated_by " +
                 "  FROM country c " +
-                "  LEFT JOIN translation t ON t.entity_type = :entityType AND t.language = :language AND t.entity_key = c.id ";
+                "  LEFT JOIN translation t ON t.entity_type = :entityType AND t.language_code = :language AND t.entity_key = c.id ";
 
         return namedParameterJdbcTemplate.query(
                 sql,

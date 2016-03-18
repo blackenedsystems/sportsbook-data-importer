@@ -25,6 +25,13 @@ import static org.junit.Assert.assertNotNull;
 @TestPropertySource(locations = "classpath:application-test.properties")
 public class CountryServiceDBTest extends DBTest {
 
+    private static final String[] BASE_DATA_SET = new String[]{
+            "INSERT INTO country (iso_code_2, iso_code_3, iso_code_numeric, default_name, created, created_by, updated, updated_by) " +
+                    "VALUES ('GB', 'GBR', '826', 'United Kingdom', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system')",
+            "INSERT INTO translation (entity_type, language_code, entity_key, translation, created, created_by, updated, updated_by) " +
+                    "VALUES ('COUNTRY', 'en', '1', 'Great Britain and Northern Ireland', CURRENT_TIMESTAMP(), 'system', CURRENT_TIMESTAMP(), 'system');"
+    };
+
     @Autowired
     private CountryService countryService;
 
@@ -69,12 +76,7 @@ public class CountryServiceDBTest extends DBTest {
                 new AbstractDBTestExecutor() {
                     @Override
                     public String[] getInitialisationSQL() {
-                        return new String[]{
-                                "INSERT INTO country (iso_code_2, iso_code_3, iso_code_numeric, default_name, created, created_by, updated, updated_by) " +
-                                        "VALUES ('GB', 'GBR', '826', 'United Kingdom', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system')",
-                                "INSERT INTO translation (entity_type, language, entity_key, translation, created, created_by, updated, updated_by) " +
-                                        "VALUES ('COUNTRY', 'en', '1', 'Great Britain and Northern Ireland', CURRENT_TIMESTAMP(), 'system', CURRENT_TIMESTAMP(), 'system');"
-                        };
+                        return BASE_DATA_SET;
                     }
 
                     @Override
@@ -94,12 +96,7 @@ public class CountryServiceDBTest extends DBTest {
                 new AbstractDBTestExecutor() {
                     @Override
                     public String[] getInitialisationSQL() {
-                        return new String[]{
-                                "INSERT INTO country (iso_code_2, iso_code_3, iso_code_numeric, default_name, created, created_by, updated, updated_by) " +
-                                        "VALUES ('GB', 'GBR', '826', 'United Kingdom', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system')",
-                                "INSERT INTO translation (entity_type, language, entity_key, translation, created, created_by, updated, updated_by) " +
-                                        "VALUES ('COUNTRY', 'en', '1', 'Great Britain and Northern Ireland', CURRENT_TIMESTAMP(), 'system', CURRENT_TIMESTAMP(), 'system');"
-                        };
+                        return BASE_DATA_SET;
                     }
 
                     @Override

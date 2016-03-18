@@ -28,7 +28,7 @@ public class CategoryDao {
         String sql =
                 "SELECT c.id, c.default_name, t.translation, c.created, c.created_by, c.updated, c.updated_by " +
                         "  FROM category c " +
-                        "  LEFT JOIN translation t ON t.entity_type = :entityType AND t.language = :language AND t.entity_key = c.id ";
+                        "  LEFT JOIN translation t ON t.entity_type = :entityType AND t.language_code = :language AND t.entity_key = c.id ";
 
         return namedParameterJdbcTemplate.query(
                 sql,

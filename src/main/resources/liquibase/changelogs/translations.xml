@@ -19,7 +19,7 @@
                 <constraints nullable="false"/>
             </column>
 
-            <column name="language"
+            <column name="language_code"
                     type="varchar(2)"
                     remarks="Two letter iso_code indicating the language of this translation.">
                 <constraints nullable="false"/>
@@ -70,12 +70,23 @@
     <changeSet id="translations-2" author="alantibbetts">
         <createIndex tableName="translation" indexName="idx_tran_type" unique="true">
             <column name="entity_type"/>
-            <column name="language"/>
+            <column name="language_code"/>
             <column name="entity_key"/>
         </createIndex>
 
         <rollback>
             <dropIndex tableName="translation" indexName="idx_tran_type"/>
         </rollback>
-        </changeSet>
+    </changeSet>
+
+    <changeSet id="translations-3" author="alantibbetts">
+        <createIndex tableName="translation" indexName="idx_entity_key" unique="false">
+            <column name="entity_type"/>
+            <column name="entity_key"/>
+        </createIndex>
+
+        <rollback>
+            <dropIndex tableName="translation" indexName="idx_entity_key"/>
+        </rollback>
+    </changeSet>
 </databaseChangeLog>

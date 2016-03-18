@@ -30,7 +30,7 @@ public class CountryController {
             value = "/list",
             method = RequestMethod.GET
     )
-    public ResponseEntity loadCountryList(@RequestParam(value = "lang", required = false, defaultValue = "en") String languageCode) {
+    public ResponseEntity loadCountryList(@RequestParam(value = "lc", required = false, defaultValue = "en") String languageCode) {
         List<Country> countryList = countryService.loadCountries(languageCode);
         return ResponseEntity.ok(countryList);
     }

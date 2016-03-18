@@ -4,6 +4,7 @@ import com.blackenedsystems.sportsbook.data.SportsbookDataImporterApplication;
 import com.blackenedsystems.sportsbook.data.internal.model.Competition;
 import com.blackenedsystems.sportsbook.data.test.AbstractDBTestExecutor;
 import com.blackenedsystems.sportsbook.data.test.DBTest;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -25,11 +27,27 @@ import static org.junit.Assert.assertNotNull;
 @TestPropertySource(locations = "classpath:application-test.properties")
 public class CompetitionServiceDBTest extends DBTest {
 
+    private static final ArrayList<String> BASE_DATA_SET = new ArrayList<>();
+
+
     @Autowired
     private CompetitionService competitionService;
 
+    @BeforeClass
+    public static void setupData() {
+        BASE_DATA_SET.add(
+                "INSERT INTO country (iso_code_2, iso_code_3, iso_code_numeric, default_name, created, created_by, updated, updated_by) " +
+                        "VALUES ('DE', 'DEU', '826', 'Germany', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system')");
+        BASE_DATA_SET.add(
+                "INSERT INTO category (default_name, created, created_by, updated, updated_by) " +
+                        "VALUES ('Football', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system')");
+        BASE_DATA_SET.add(
+                "INSERT INTO competition (category_id, country_code, default_name, created, created_by, updated, updated_by) " +
+                        "VALUES (1, 'DE', 'Bundesliga', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system')");
+    }
+
     @Test
-    public void loadCategories_empty_ok() throws Exception {
+    public void loadCompetitions_empty_ok() throws Exception {
         executeTest(
                 new AbstractDBTestExecutor() {
                     @Override
@@ -42,19 +60,12 @@ public class CompetitionServiceDBTest extends DBTest {
     }
 
     @Test
-    public void loadCategories_ok() throws Exception {
+    public void loadCompetitions_ok() throws Exception {
         executeTest(
                 new AbstractDBTestExecutor() {
                     @Override
                     public String[] getInitialisationSQL() {
-                        return new String[]{
-                                "INSERT INTO country (iso_code_2, iso_code_3, iso_code_numeric, default_name, created, created_by, updated, updated_by) " +
-                                        "VALUES ('DE', 'DEU', '826', 'Germany', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system')",
-                                "INSERT INTO category (default_name, created, created_by, updated, updated_by) " +
-                                        "VALUES ('Football', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system')",
-                                "INSERT INTO competition (category_id, country_code, default_name, created, created_by, updated, updated_by) " +
-                                        "VALUES (1, 'DE', 'Bundesliga', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system')"
-                        };
+                        return BASE_DATA_SET.toArray(new String[BASE_DATA_SET.size()]);
                     }
 
                     @Override
@@ -68,21 +79,16 @@ public class CompetitionServiceDBTest extends DBTest {
     }
 
     @Test
-    public void loadCategories_withTranslation_ok() throws Exception {
+    public void loadCompetitions_withTranslation_ok() throws Exception {
         executeTest(
                 new AbstractDBTestExecutor() {
                     @Override
                     public String[] getInitialisationSQL() {
-                        return new String[]{
-                                "INSERT INTO country (iso_code_2, iso_code_3, iso_code_numeric, default_name, created, created_by, updated, updated_by) " +
-                                        "VALUES ('DE', 'DEU', '826', 'Germany', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system')",
-                                "INSERT INTO category (default_name, created, created_by, updated, updated_by) " +
-                                        "VALUES ('Football', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system')",
-                                "INSERT INTO competition (category_id, country_code, default_name, created, created_by, updated, updated_by) " +
-                                        "VALUES (1, 'DE', 'Bundesliga', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system')",
-                                "INSERT INTO translation (entity_type, language, entity_key, translation, created, created_by, updated, updated_by) " +
-                                        "VALUES ('COMPETITION', 'en', '1', 'Der Bundeliga', CURRENT_TIMESTAMP(), 'system', CURRENT_TIMESTAMP(), 'system');"
-                        };
+                        ArrayList<String> sql = new ArrayList<>();
+                        sql.addAll(BASE_DATA_SET);
+                        sql.add("INSERT INTO translation (entity_type, language_code, entity_key, translation, created, created_by, updated, updated_by) " +
+                                "VALUES ('COMPETITION', 'en', '1', 'Der Bundeliga', CURRENT_TIMESTAMP(), 'system', CURRENT_TIMESTAMP(), 'system');");
+                        return sql.toArray(new String[sql.size()]);
                     }
 
                     @Override

@@ -32,7 +32,7 @@ public class CompetitionController {
             method = RequestMethod.GET
     )
     public ResponseEntity loadCompetitions(@PathVariable("categoryId") int categoryId,
-                                           @RequestParam(value = "lang", required = false, defaultValue = "en") String languageCode) {
+                                           @RequestParam(value = "lc", required = false, defaultValue = "en") String languageCode) {
         List<Competition> competitionList = competitionService.loadCompetitions(categoryId, languageCode);
         return ResponseEntity.ok(competitionList);
     }

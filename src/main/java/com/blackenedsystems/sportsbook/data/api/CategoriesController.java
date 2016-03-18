@@ -30,7 +30,7 @@ public class CategoriesController {
             value = "/list",
             method = RequestMethod.GET
     )
-    public ResponseEntity loadCategoryList(@RequestParam(value = "lang", required = false, defaultValue = "en") String languageCode) {
+    public ResponseEntity loadCategoryList(@RequestParam(value = "lc", required = false, defaultValue = "en") String languageCode) {
         List<Category> categoryList = categoryService.loadCategories(languageCode);
         return ResponseEntity.ok(categoryList);
     }

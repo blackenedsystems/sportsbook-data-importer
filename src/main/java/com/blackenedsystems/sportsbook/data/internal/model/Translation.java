@@ -10,7 +10,7 @@ public class Translation extends CoreEntity {
     private EntityType entityType;
     private String language;
     private int key;
-    private String value;
+    private String translation;
 
     public int getId() {
         return id;
@@ -44,12 +44,12 @@ public class Translation extends CoreEntity {
         this.key = key;
     }
 
-    public String getValue() {
-        return value;
+    public String getTranslation() {
+        return translation;
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    public void setTranslation(String translation) {
+        this.translation = translation;
     }
 
     @Override
@@ -59,7 +59,7 @@ public class Translation extends CoreEntity {
                 ", entityType=" + entityType +
                 ", language='" + language + '\'' +
                 ", key=" + key +
-                ", value='" + value + '\'' +
+                ", translation='" + translation + '\'' +
                 super.toString() +
                 '}';
     }
