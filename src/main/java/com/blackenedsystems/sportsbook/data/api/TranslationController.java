@@ -1,5 +1,6 @@
 package com.blackenedsystems.sportsbook.data.api;
 
+import com.blackenedsystems.sportsbook.data.SportsbookDataImporterConfiguration;
 import com.blackenedsystems.sportsbook.data.internal.TranslationService;
 import com.blackenedsystems.sportsbook.data.internal.model.EntityType;
 import com.blackenedsystems.sportsbook.data.internal.model.Translation;
@@ -33,7 +34,7 @@ public class TranslationController {
             method = RequestMethod.GET
     )
     public ResponseEntity loadCategoryList(@PathVariable("type") EntityType entityType,
-                                           @RequestParam(value = "lc", required = false, defaultValue = "en") String languageCode) {
+                                           @RequestParam(value = "lc", required = false, defaultValue = SportsbookDataImporterConfiguration.DEFAULT_LANGUAGE) String languageCode) {
         List<Translation> translationList = translationService.loadTranslations(entityType, languageCode);
         return ResponseEntity.ok(translationList);
     }

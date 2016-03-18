@@ -1,5 +1,6 @@
 package com.blackenedsystems.sportsbook.data.api;
 
+import com.blackenedsystems.sportsbook.data.SportsbookDataImporterConfiguration;
 import com.blackenedsystems.sportsbook.data.internal.CompetitionService;
 import com.blackenedsystems.sportsbook.data.internal.model.Competition;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ public class CompetitionController {
             method = RequestMethod.GET
     )
     public ResponseEntity loadCompetitions(@PathVariable("categoryId") int categoryId,
-                                           @RequestParam(value = "lc", required = false, defaultValue = "en") String languageCode) {
+                                           @RequestParam(value = "lc", required = false, defaultValue = SportsbookDataImporterConfiguration.DEFAULT_LANGUAGE) String languageCode) {
         List<Competition> competitionList = competitionService.loadCompetitions(categoryId, languageCode);
         return ResponseEntity.ok(competitionList);
     }

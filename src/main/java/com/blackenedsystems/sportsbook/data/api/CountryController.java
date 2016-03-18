@@ -1,5 +1,6 @@
 package com.blackenedsystems.sportsbook.data.api;
 
+import com.blackenedsystems.sportsbook.data.SportsbookDataImporterConfiguration;
 import com.blackenedsystems.sportsbook.data.internal.CountryService;
 import com.blackenedsystems.sportsbook.data.internal.model.Country;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,7 @@ public class CountryController {
             value = "/list",
             method = RequestMethod.GET
     )
-    public ResponseEntity loadCountryList(@RequestParam(value = "lc", required = false, defaultValue = "en") String languageCode) {
+    public ResponseEntity loadCountryList(@RequestParam(value = "lc", required = false, defaultValue = SportsbookDataImporterConfiguration.DEFAULT_LANGUAGE) String languageCode) {
         List<Country> countryList = countryService.loadCountries(languageCode);
         return ResponseEntity.ok(countryList);
     }

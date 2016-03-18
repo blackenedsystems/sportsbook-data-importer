@@ -1,5 +1,6 @@
 package com.blackenedsystems.sportsbook.data.api;
 
+import com.blackenedsystems.sportsbook.data.SportsbookDataImporterConfiguration;
 import com.blackenedsystems.sportsbook.data.internal.CategoryService;
 import com.blackenedsystems.sportsbook.data.internal.model.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,7 @@ public class CategoriesController {
             value = "/list",
             method = RequestMethod.GET
     )
-    public ResponseEntity loadCategoryList(@RequestParam(value = "lc", required = false, defaultValue = "en") String languageCode) {
+    public ResponseEntity loadCategoryList(@RequestParam(value = "lc", required = false, defaultValue = SportsbookDataImporterConfiguration.DEFAULT_LANGUAGE) String languageCode) {
         List<Category> categoryList = categoryService.loadCategories(languageCode);
         return ResponseEntity.ok(categoryList);
     }
