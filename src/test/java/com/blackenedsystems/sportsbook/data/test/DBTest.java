@@ -33,7 +33,7 @@ public class DBTest {
      * @throws SQLException
      * @throws LiquibaseException
      */
-    protected void executeTest(AbstractDBTestExecutor dbTestExecutor) throws SQLException, LiquibaseException {
+    protected void executeTest(final AbstractDBTestExecutor dbTestExecutor) throws SQLException, LiquibaseException {
         try (Connection connection = dataSource.getConnection()) {
             Liquibase liquibase = loadDatabase(connection);
 

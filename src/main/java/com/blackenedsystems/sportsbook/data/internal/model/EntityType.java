@@ -8,5 +8,7 @@ public enum EntityType {
     COUNTRY,
     CATEGORY,
     COMPETITION,
-    MARKET_TYPE
+    MARKET,
+    MARKET_TYPE,
+    MARKET_INSTRUCTION
 }
