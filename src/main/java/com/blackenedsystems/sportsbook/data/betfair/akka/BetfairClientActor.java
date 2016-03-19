@@ -42,8 +42,17 @@ public class BetfairClientActor extends AbstractActor {
                         .match(LoadEventTypes.class, this::loadEventTypes)
                         .match(LoadCompetitions.class, this::loadCompetitions)
                         .match(LoadMarketTypes.class, this::loadMarketTypes)
+                        .match(LoadEvents.class, this::loadEvents)
                         .build()
         );
+    }
+
+    private void loadEvents(final LoadEvents le) {
+//        List<DataMapping> competitionMappings = dataMappingService.loadDataMappingsMarkedForProcessing(ExternalDataSource.BETFAIR, MappingType.COMPETITION);
+//
+//        for (DataMapping competitionMapping : competitionMappings) {
+//            betfairClient.loadEvents()
+//        }
     }
 
     /**
@@ -119,6 +128,14 @@ public class BetfairClientActor extends AbstractActor {
         public ActorRef replyTo;
 
         public LoadMarketTypes(final ActorRef replyTo) {
+            this.replyTo = replyTo;
+        }
+    }
+
+    public static class LoadEvents {
+        public ActorRef replyTo;
+
+        public LoadEvents(final ActorRef replyTo) {
             this.replyTo = replyTo;
         }
     }
