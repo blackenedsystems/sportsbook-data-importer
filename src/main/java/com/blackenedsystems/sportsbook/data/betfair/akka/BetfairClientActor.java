@@ -6,18 +6,23 @@ import akka.japi.pf.ReceiveBuilder;
 import com.blackenedsystems.sportsbook.data.akka.ActorService;
 import com.blackenedsystems.sportsbook.data.betfair.BetfairClient;
 import com.blackenedsystems.sportsbook.data.betfair.model.Competition;
+import com.blackenedsystems.sportsbook.data.betfair.model.Event;
 import com.blackenedsystems.sportsbook.data.betfair.model.EventType;
 import com.blackenedsystems.sportsbook.data.betfair.model.MarketType;
 import com.blackenedsystems.sportsbook.data.mapping.DataMappingService;
 import com.blackenedsystems.sportsbook.data.mapping.model.DataMapping;
 import com.blackenedsystems.sportsbook.data.mapping.model.ExternalDataSource;
 import com.blackenedsystems.sportsbook.data.mapping.model.MappingType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 
 import javax.inject.Named;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Alan Tibbetts
@@ -26,6 +31,8 @@ import java.util.List;
 @Named("BetfairClientActor")
 @Scope("prototype")
 public class BetfairClientActor extends AbstractActor {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BetfairClientActor.class);
 
     @Autowired
     private ActorService actorService;
@@ -47,12 +54,20 @@ public class BetfairClientActor extends AbstractActor {
         );
     }
 
-    private void loadEvents(final LoadEvents le) {
-//        List<DataMapping> competitionMappings = dataMappingService.loadDataMappingsMarkedForProcessing(ExternalDataSource.BETFAIR, MappingType.COMPETITION);
-//
-//        for (DataMapping competitionMapping : competitionMappings) {
-//            betfairClient.loadEvents()
-//        }
+    private void loadEvents(final LoadEvents le) throws IOException {
+        List<DataMapping> competitionMappings = dataMappingService.loadDataMappingsMarkedForProcessing(ExternalDataSource.BETFAIR, MappingType.COMPETITION);
+
+        //TODO, what happens when this list is too long? Make multiple calls to Betfair?  Split result over many processor actors?
+        Set<String> idList = competitionMappings.stream()
+                .map(DataMapping::getExternalId)
+                .collect(Collectors.toSet());
+
+        List<Event> eventList = betfairClient.loadEvents(idList);
+
+        ActorRef eventActor = actorService.actorFromContext(context(), "BetfairEventActor", "betfairEvents");
+        eventActor.tell(new BetfairEventActor.ProcessEvents(eventList), self());
+
+        sender().tell(new DataLoaded(le.replyTo), self());
     }
 
     /**

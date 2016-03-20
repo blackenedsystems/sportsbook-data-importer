@@ -1,12 +1,15 @@
 package com.blackenedsystems.sportsbook.data.betfair;
 
 import com.blackenedsystems.sportsbook.data.betfair.model.Competition;
+import com.blackenedsystems.sportsbook.data.betfair.model.Event;
 import com.blackenedsystems.sportsbook.data.betfair.model.EventType;
 import com.blackenedsystems.sportsbook.data.betfair.model.MarketType;
 import com.blackenedsystems.sportsbook.data.mapping.DataMappingService;
 import com.blackenedsystems.sportsbook.data.mapping.model.DataMapping;
 import com.blackenedsystems.sportsbook.data.mapping.model.ExternalDataSource;
 import com.blackenedsystems.sportsbook.data.mapping.model.MappingType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +22,8 @@ import java.util.Optional;
  */
 @Service
 public class BetfairDataMappingService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BetfairDataMappingService.class);
 
     @Autowired
     private DataMappingService dataMappingService;
@@ -80,6 +85,12 @@ public class BetfairDataMappingService {
 
                 dataMappingService.saveOrUpdate(marketTypeMapping, DataMappingService.INTERNAL_USER);
             }
+        }
+    }
+
+    public void processEventList(final List<Event> eventList) {
+        for (Event event : eventList) {
+            LOGGER.info(event.toString());
         }
     }
 }

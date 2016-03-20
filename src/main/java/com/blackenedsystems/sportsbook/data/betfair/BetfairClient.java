@@ -3,10 +3,8 @@ package com.blackenedsystems.sportsbook.data.betfair;
 import com.blackenedsystems.sportsbook.data.betfair.api.APIOperation;
 import com.blackenedsystems.sportsbook.data.betfair.api.CompetitionWrapper;
 import com.blackenedsystems.sportsbook.data.betfair.api.EventTypeWrapper;
-import com.blackenedsystems.sportsbook.data.betfair.model.Competition;
-import com.blackenedsystems.sportsbook.data.betfair.model.EventType;
-import com.blackenedsystems.sportsbook.data.betfair.model.MarketFilter;
-import com.blackenedsystems.sportsbook.data.betfair.model.MarketType;
+import com.blackenedsystems.sportsbook.data.betfair.api.EventWrapper;
+import com.blackenedsystems.sportsbook.data.betfair.model.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +37,9 @@ public class BetfairClient {
     private static final String ORDER_PROJECTION = "orderProjection";
 
     private final BetfairConnector betfairConnector;
+
+    @Autowired
+    private BetfairConfiguration betfairConfiguration;
 
     @Autowired
     public BetfairClient(final BetfairConnector betfairConnector) {
@@ -81,7 +82,7 @@ public class BetfairClient {
 
     /**
      * @param eventTypeId betfair eventType id, used to filter the list of competitions returned.
-     * @param locale  locale to use for strings returned by Betfair
+     * @param locale      locale to use for strings returned by Betfair
      * @return a list of competitions in Betfair's structure for the chosen eventType, using the supplied locale for strings.
      * @throws IOException
      */
@@ -127,4 +128,35 @@ public class BetfairClient {
         return Arrays.asList(new ObjectMapper().readValue(result, MarketType[].class));
     }
 
+    /**
+     * @param competitionIds the betfair competition ids for which we should load events.
+     * @return  a list of events for the specified competitions, with start times after 'now', using the default locale for strings.
+     */
+    public List<Event> loadEvents(final Set<String> competitionIds) throws IOException {
+        return loadEvents(competitionIds, Locale.getDefault());
+    }
+
+    /**
+     * @param competitionIds the betfair competition ids for which we should load events.
+     * @param locale         locale to use for strings returned by Betfair
+     * @return  a list of events for the specified competitions, with start times after 'now'.
+     */
+    public List<Event> loadEvents(final Set<String> competitionIds, final Locale locale) throws IOException {
+        TimeRange startTime = new TimeRange();
+        startTime.setFrom(new Date());
+
+        MarketFilter marketFilter = new MarketFilter();
+        marketFilter.setCompetitionIds(competitionIds);
+        marketFilter.setMarketStartTime(startTime);
+
+        Map<String, Object> params = new HashMap<>();
+        params.put(FILTER, marketFilter);
+        params.put(LOCALE, locale.toString());
+
+        String result = betfairConnector.postRequest(APIOperation.LISTEVENTS, params);
+        LOGGER.debug("Result of loadEvents: {}", result);
+
+        List<EventWrapper> eventWrappers = Arrays.asList(new ObjectMapper().readValue(result, EventWrapper[].class));
+        return EventWrapper.extractEventTypes(eventWrappers);
+    }
 }

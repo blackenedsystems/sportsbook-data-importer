@@ -12,6 +12,8 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource("${betfair.properties.filename}")
 public class BetfairConfiguration {
 
+    public String betfairTimezone = "Europe/London";
+
     @Value("${betfair.login.url}")
     public String loginUrl;
 
@@ -63,6 +65,7 @@ public class BetfairConfiguration {
                 ", apiKey='****'" +
                 ", workflowInitialDelay=" + initialWorkflowDelay +
                 ", workflowInterval=" + workflowInterval +
+                ", betfairTimezone=" + betfairTimezone +
                 '}';
     }
 }
