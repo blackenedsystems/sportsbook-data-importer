@@ -3,8 +3,8 @@ package com.blackenedsystems.sportsbook.data.betfair.api;
 import com.blackenedsystems.sportsbook.data.betfair.model.EventType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Used when deserialising responses from Betfair.
@@ -25,10 +25,8 @@ public class EventTypeWrapper {
     }
 
     public static List<EventType> extractEventTypes(final List<EventTypeWrapper> wrappers) {
-        List<EventType> eventTypeList = new ArrayList<>(wrappers.size());
-        for (EventTypeWrapper wrapper : wrappers) {
-            eventTypeList.add(wrapper.getEventType());
-        }
-        return eventTypeList;
+        return wrappers.stream()
+                .map(EventTypeWrapper::getEventType)
+                .collect(Collectors.toList());
     }
 }

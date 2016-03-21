@@ -6,17 +6,19 @@ import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfigurati
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.EnableScheduling;
+
+/**
+ * @author Alan Tibbetts
+ * @since 21/03/16
+ */
 
 @ComponentScan
 @Configuration
 @EnableAutoConfiguration(exclude = {LiquibaseAutoConfiguration.class})
 @EnableCaching
-@EnableScheduling
-public class SportsbookDataImporterApplication {
+public class TestSportsbookDataImporterApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(SportsbookDataImporterApplication.class, args);
+        SpringApplication.run(TestSportsbookDataImporterApplication.class, args);
     }
 }
-

@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
  * Test that the spring application builds as expected and that we end up with the configuration we require.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = SportsbookDataImporterApplication.class)
+@SpringApplicationConfiguration(classes = TestSportsbookDataImporterApplication.class)
 @TestPropertySource(locations = "classpath:application-test.properties")
 public class SportsbookDataImporterApplicationTests {
 

@@ -2,8 +2,8 @@ package com.blackenedsystems.sportsbook.data.betfair.api;
 
 import com.blackenedsystems.sportsbook.data.betfair.model.Competition;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Alan Tibbetts
@@ -40,11 +40,11 @@ public class CompetitionWrapper {
     }
 
     public static List<Competition> extractCompetitions(final List<CompetitionWrapper> competitionWrappers) {
-        List<Competition> competitionList = new ArrayList<>(competitionWrappers.size());
-        for (CompetitionWrapper competitionWrapper : competitionWrappers) {
-            competitionWrapper.competition.setRegion(competitionWrapper.competitionRegion);
-            competitionList.add(competitionWrapper.competition);
-        }
-        return competitionList;
+        return competitionWrappers.stream()
+                .peek(cw -> {
+                    cw.getCompetition().setRegion(cw.competitionRegion);
+                })
+                .map(CompetitionWrapper::getCompetition)
+                .collect(Collectors.toList());
     }
 }

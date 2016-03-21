@@ -1,6 +1,6 @@
 package com.blackenedsystems.sportsbook.data.mapping;
 
-import com.blackenedsystems.sportsbook.data.SportsbookDataImporterApplication;
+import com.blackenedsystems.sportsbook.data.TestSportsbookDataImporterApplication;
 import com.blackenedsystems.sportsbook.data.mapping.model.DataMapping;
 import com.blackenedsystems.sportsbook.data.mapping.model.ExternalDataSource;
 import com.blackenedsystems.sportsbook.data.mapping.model.MappingType;
@@ -27,7 +27,7 @@ import static org.junit.Assert.*;
  * @since 7/3/16 13:45
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = SportsbookDataImporterApplication.class)
+@SpringApplicationConfiguration(classes = TestSportsbookDataImporterApplication.class)
 @TestPropertySource(locations = "classpath:application-test.properties")
 public class DataMappingServiceDBTest extends DBTest {
 

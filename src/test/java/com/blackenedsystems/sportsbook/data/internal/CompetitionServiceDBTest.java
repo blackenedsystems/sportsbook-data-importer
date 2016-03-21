@@ -1,6 +1,6 @@
 package com.blackenedsystems.sportsbook.data.internal;
 
-import com.blackenedsystems.sportsbook.data.SportsbookDataImporterApplication;
+import com.blackenedsystems.sportsbook.data.TestSportsbookDataImporterApplication;
 import com.blackenedsystems.sportsbook.data.internal.model.Competition;
 import com.blackenedsystems.sportsbook.data.test.AbstractDBTestExecutor;
 import com.blackenedsystems.sportsbook.data.test.DBTest;
@@ -23,7 +23,7 @@ import static org.junit.Assert.assertNotNull;
  * @since 2016-03-17,  6:35 PM
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = SportsbookDataImporterApplication.class)
+@SpringApplicationConfiguration(classes = TestSportsbookDataImporterApplication.class)
 @TestPropertySource(locations = "classpath:application-test.properties")
 public class CompetitionServiceDBTest extends DBTest {
 
