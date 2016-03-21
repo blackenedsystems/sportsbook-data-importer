@@ -9,5 +9,6 @@ package com.blackenedsystems.sportsbook.data.mapping.model;
 public enum MappingType {
     CATEGORY,
     COMPETITION,
+    EVENT,
     MARKET_TYPE
 }

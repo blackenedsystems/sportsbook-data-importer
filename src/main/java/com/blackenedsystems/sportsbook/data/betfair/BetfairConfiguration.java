@@ -50,6 +50,9 @@ public class BetfairConfiguration {
     @Value("${betfair.workflow.basedata.interval}")
     public int baseDataInterval;
 
+    @Value("${betfair.load.odds}")
+    public boolean loadMarketsAndOdds;
+
     @Override
     public String toString() {
         return "BetfairConfiguration{" +
@@ -66,6 +69,7 @@ public class BetfairConfiguration {
                 ", eventDataInterval=" + eventDataInterval +
                 ", baseDataInterval=" + baseDataInterval +
                 ", betfairTimezone=" + betfairTimezone +
+                ", loadMarketsAndOdds=" + loadMarketsAndOdds +
                 '}';
     }
 }

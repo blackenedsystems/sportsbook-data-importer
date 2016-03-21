@@ -50,7 +50,9 @@ public class BetfairScheduler {
 
     private BetfairDataImportActor.Start constructStartMessage() {
         BetfairDataImportActor.Start msg = new BetfairDataImportActor.Start();
-        msg.process(ProcessType.ODDS);
+        if (betfairConfiguration.loadMarketsAndOdds) {
+            msg.process(ProcessType.ODDS);
+        }
         if (iteration % betfairConfiguration.eventDataInterval == 0) {
             msg.process(ProcessType.EVENTS);
         }

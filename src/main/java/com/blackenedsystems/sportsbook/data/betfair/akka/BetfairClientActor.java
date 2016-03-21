@@ -65,7 +65,8 @@ public class BetfairClientActor extends AbstractActor {
         List<Event> eventList = betfairClient.loadEvents(idList);
 
         ActorRef eventActor = actorService.actorFromContext(context(), "BetfairEventActor", "betfairEvents");
-        eventActor.tell(new BetfairEventActor.ProcessEvents(eventList), self());
+        //TODO: load events grouped by category, so we can pass that to the processevents call...
+        eventActor.tell(new BetfairEventActor.ProcessEvents(null, eventList), self());
 
         sender().tell(new DataLoaded(le.replyTo), self());
     }

@@ -28,18 +28,21 @@ public class BetfairDataMappingService {
     @Autowired
     private DataMappingService dataMappingService;
 
+    @Autowired
+    private BetfairConfiguration betfairConfiguration;
+
     /**
      * Checks each of the eventTypes (/categories) retrieved from Betfair against the current list of data mappings.  If this is a category
      * we've not yet seen, we create a new data mapping row, otherwise we ignore it.
      */
     public void processEventTypeList(final List<EventType> betfairEventTypes) {
         for (EventType betfairEventType : betfairEventTypes) {
-            Optional<DataMapping> dataMapping = dataMappingService.findByExternalId(ExternalDataSource.BETFAIR, MappingType.CATEGORY, betfairEventType.getId());
+            Optional<DataMapping> dataMapping = dataMappingService.findByExternalId(ExternalDataSource.BETFAIR, MappingType.CATEGORY, betfairEventType.getId().trim());
             if (!dataMapping.isPresent()) {
                 DataMapping categoryMapping = new DataMapping();
                 categoryMapping.setMappingType(MappingType.CATEGORY);
                 categoryMapping.setExternalDataSource(ExternalDataSource.BETFAIR);
-                categoryMapping.setExternalId(betfairEventType.getId());
+                categoryMapping.setExternalId(betfairEventType.getId().trim());
                 categoryMapping.setExternalDescription(betfairEventType.getName().trim());
 
                 dataMappingService.saveOrUpdate(categoryMapping, DataMappingService.INTERNAL_USER);
@@ -53,12 +56,12 @@ public class BetfairDataMappingService {
      */
     public void processCompetitionList(final String category, final List<Competition> betfairCompetitions) {
         for (Competition betfairCompetition : betfairCompetitions) {
-            Optional<DataMapping> dataMapping = dataMappingService.findByExternalId(ExternalDataSource.BETFAIR, MappingType.COMPETITION, betfairCompetition.getId());
+            Optional<DataMapping> dataMapping = dataMappingService.findByExternalId(ExternalDataSource.BETFAIR, MappingType.COMPETITION, betfairCompetition.getId().trim());
             if (!dataMapping.isPresent()) {
                 DataMapping competitionMapping = new DataMapping();
                 competitionMapping.setMappingType(MappingType.COMPETITION);
                 competitionMapping.setExternalDataSource(ExternalDataSource.BETFAIR);
-                competitionMapping.setExternalId(betfairCompetition.getId());
+                competitionMapping.setExternalId(betfairCompetition.getId().trim());
                 competitionMapping.setCategoryName(category);
 
                 String description = String.format("%s [%s]", betfairCompetition.getName(), betfairCompetition.getRegion());
@@ -75,7 +78,7 @@ public class BetfairDataMappingService {
      */
     public void processMarketTypeList(final List<MarketType> marketTypeList) {
         for (MarketType marketType : marketTypeList) {
-            Optional<DataMapping> dataMapping = dataMappingService.findByExternalId(ExternalDataSource.BETFAIR, MappingType.MARKET_TYPE, marketType.getMarketType());
+            Optional<DataMapping> dataMapping = dataMappingService.findByExternalId(ExternalDataSource.BETFAIR, MappingType.MARKET_TYPE, marketType.getMarketType().trim());
             if (!dataMapping.isPresent()) {
                 DataMapping marketTypeMapping = new DataMapping();
                 marketTypeMapping.setMappingType(MappingType.MARKET_TYPE);
@@ -88,9 +91,23 @@ public class BetfairDataMappingService {
         }
     }
 
-    public void processEventList(final List<Event> eventList) {
+    public void processEventList(final String category, final List<Event> eventList) {
         for (Event event : eventList) {
-            LOGGER.info(event.toString());
+            Optional<DataMapping> dataMapping = dataMappingService.findByExternalId(ExternalDataSource.BETFAIR, MappingType.EVENT, event.getId().trim());
+            if (!dataMapping.isPresent()) {
+                DataMapping eventMapping = new DataMapping();
+                eventMapping.setMappingType(MappingType.EVENT);
+                eventMapping.setExternalDataSource(ExternalDataSource.BETFAIR);
+                eventMapping.setExternalId(event.getId().trim());
+                eventMapping.setExternalDescription(event.getName().trim());
+                eventMapping.setCategoryName(category);
+
+                if (betfairConfiguration.loadMarketsAndOdds) {
+                    eventMapping.setLoadChildren(true);
+                }
+
+                dataMappingService.saveOrUpdate(eventMapping, DataMappingService.INTERNAL_USER);
+            }
         }
     }
 }
