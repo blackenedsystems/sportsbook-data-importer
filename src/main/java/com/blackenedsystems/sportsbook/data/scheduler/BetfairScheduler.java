@@ -2,7 +2,9 @@ package com.blackenedsystems.sportsbook.data.scheduler;
 
 import akka.actor.ActorRef;
 import com.blackenedsystems.sportsbook.data.akka.ActorService;
-import com.blackenedsystems.sportsbook.data.betfair.akka.BetfairBaseDataActor;
+import com.blackenedsystems.sportsbook.data.betfair.BetfairConfiguration;
+import com.blackenedsystems.sportsbook.data.betfair.akka.BetfairDataImportActor;
+import com.blackenedsystems.sportsbook.data.betfair.akka.ProcessType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,19 +25,38 @@ public class BetfairScheduler {
     @Autowired
     private ActorService actorService;
 
-    private ActorRef baseDataActor;
+    @Autowired
+    private BetfairConfiguration betfairConfiguration;
+
+    private ActorRef dataImportActor;
+    private int iteration = 0;
 
     @PostConstruct
     public void createActors() {
-        baseDataActor = actorService.actorFromContext("BetfairBaseDataActor", "befairBaseDataActor");
+        dataImportActor = actorService.actorFromContext("BetfairDataImportActor", "betfairDataImportActor");
     }
 
-    @Scheduled(cron = "${schedule.betfair.basedata}")
-    public void loadBaseData() {
+    @Scheduled(cron = "${schedule.betfair.odds}")
+    public void loadData() {
         try {
-            baseDataActor.tell(new BetfairBaseDataActor.Start(), baseDataActor);
+            BetfairDataImportActor.Start msg = constructStartMessage();
+            dataImportActor.tell(msg, dataImportActor);
+
+            iteration++;
         } catch (Exception e) {
             LOGGER.error("Error", e);
         }
+    }
+
+    private BetfairDataImportActor.Start constructStartMessage() {
+        BetfairDataImportActor.Start msg = new BetfairDataImportActor.Start();
+        msg.process(ProcessType.ODDS);
+        if (iteration % betfairConfiguration.eventDataInterval == 0) {
+            msg.process(ProcessType.EVENTS);
+        }
+        if (iteration % betfairConfiguration.baseDataInterval == 0) {
+            msg.process(ProcessType.BASE);
+        }
+        return msg;
     }
 }

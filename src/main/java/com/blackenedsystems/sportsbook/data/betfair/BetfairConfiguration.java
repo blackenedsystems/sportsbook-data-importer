@@ -44,11 +44,11 @@ public class BetfairConfiguration {
     @Value("${betfair.socket.timeout}")
     public int socketTimeout;
 
-    @Value("${betfair.workflow.initial.delay}")
-    public int initialWorkflowDelay;
+    @Value("${betfair.workflow.event.interval}")
+    public int eventDataInterval;
 
-    @Value("${betfair.workflow.interval}")
-    public int workflowInterval;
+    @Value("${betfair.workflow.basedata.interval}")
+    public int baseDataInterval;
 
     @Override
     public String toString() {
@@ -63,8 +63,8 @@ public class BetfairConfiguration {
                 ", username='" + username + '\'' +
                 ", password='****'" +
                 ", apiKey='****'" +
-                ", workflowInitialDelay=" + initialWorkflowDelay +
-                ", workflowInterval=" + workflowInterval +
+                ", eventDataInterval=" + eventDataInterval +
+                ", baseDataInterval=" + baseDataInterval +
                 ", betfairTimezone=" + betfairTimezone +
                 '}';
     }

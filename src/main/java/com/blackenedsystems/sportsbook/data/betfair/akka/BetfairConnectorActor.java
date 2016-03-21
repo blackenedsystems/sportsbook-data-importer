@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 
 import javax.inject.Named;
+import java.util.List;
 
 /**
  * @author Alan Tibbetts
@@ -40,22 +41,26 @@ public class BetfairConnectorActor extends AbstractActor {
         if (!betfairConnector.isConnected()) {
             betfairConnector.logon();
         }
-        sender().tell(new Connected(connect.replyTo), self());
+        sender().tell(new Connected(connect.replyTo, connect.processes), self());
     }
 
     public static class Connect {
         public ActorRef replyTo;
+        public final List<ProcessType> processes;
 
-        public Connect(ActorRef replyTo) {
+        public Connect(ActorRef replyTo, List<ProcessType> processes) {
             this.replyTo = replyTo;
+            this.processes = processes;
         }
     }
 
     public static class Connected {
-        public ActorRef replyTo;
+        public final ActorRef replyTo;
+        public final List<ProcessType> processes;
 
-        public Connected(ActorRef replyTo) {
+        public Connected(ActorRef replyTo, List<ProcessType> processes) {
             this.replyTo = replyTo;
+            this.processes = processes;
         }
     }
 

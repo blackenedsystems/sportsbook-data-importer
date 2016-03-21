@@ -28,21 +28,23 @@ import static com.blackenedsystems.sportsbook.data.betfair.akka.BetfairConnector
  * @author Alan Tibbetts
  * @since 08/03/16
  */
-@Named("BetfairBaseDataActor")
+@Named("BetfairDataImportActor")
 @Scope("prototype")
-public class BetfairBaseDataActor extends AbstractActor {
+public class BetfairDataImportActor extends AbstractActor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BetfairBaseDataActor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BetfairDataImportActor.class);
 
     @Autowired
     private ActorService actorService;
 
-    public BetfairBaseDataActor() {
+    public BetfairDataImportActor() {
         receive(
                 ReceiveBuilder
                         .match(Start.class, s -> {
-                            ActorRef bfcRef = actorService.actorFromContext(context(), "BetfairConnectorActor", "betfairConnector");
-                            bfcRef.tell(new Connect(sender()), self());
+                            if (s.processes.size() > 0) {
+                                ActorRef bfcRef = actorService.actorFromContext(context(), "BetfairConnectorActor", "betfairConnector");
+                                bfcRef.tell(new Connect(sender(), s.processes), self());
+                            }
                         })
                         .match(Connected.class, this::loadData)
                         .match(Disconnected.class, d -> {
@@ -63,26 +65,53 @@ public class BetfairBaseDataActor extends AbstractActor {
 
         ActorRef clientActor = actorService.actorFromContext(context(), "BetfairClientActor", "betfairClient");
 
+        List<Future<Object>> baseDataFutures = constructFuturesList(connectedMessage, clientActor);
+
+        if (baseDataFutures.size() > 0) {
+            Future<Iterable<Object>> sequence = sequence(baseDataFutures, context().dispatcher());
+            sequence.onComplete(new OnComplete<Iterable<Object>>() {
+                @Override
+                public void onComplete(Throwable throwable, Iterable<Object> objects) throws Throwable {
+                    if (throwable != null) {
+                        LOGGER.error("Betfair load data process failed.", throwable);
+                    }
+
+                    sendDisconnectMessage(connectedMessage);
+                }
+            }, context().dispatcher());
+        } else {
+            sendDisconnectMessage(connectedMessage);
+        }
+    }
+
+    private void sendDisconnectMessage(final Connected connectedMessage) {
+        ActorRef bfcRef = actorService.actorFromContext(context(), "BetfairConnectorActor", "betfairConnector");
+        bfcRef.tell(new Disconnect(connectedMessage.replyTo), self());
+    }
+
+    /**
+     * Construct a list of calls to be made to Betfair.
+     */
+    private List<Future<Object>> constructFuturesList(final Connected connectedMessage, final ActorRef clientActor) {
         Timeout timeout = new Timeout(Duration.create(10, "seconds"));
 
         List<Future<Object>> baseDataFutures = new ArrayList<>();
-        baseDataFutures.add(createLoadEventTypesFuture(connectedMessage, clientActor, timeout));
-        baseDataFutures.add(createLoadCompetitionsFuture(connectedMessage, clientActor, timeout));
-        baseDataFutures.add(createLoadMarketTypesFuture(connectedMessage, clientActor, timeout));
-        baseDataFutures.add(createLoadEventsFuture(connectedMessage, clientActor, timeout));
 
-        Future<Iterable<Object>> sequence = sequence(baseDataFutures, context().dispatcher());
-        sequence.onComplete(new OnComplete<Iterable<Object>>() {
-            @Override
-            public void onComplete(Throwable throwable, Iterable<Object> objects) throws Throwable {
-                if (throwable != null) {
-                    LOGGER.error("Betfair load data process failed.", throwable);
-                }
+        if (connectedMessage.processes.contains(ProcessType.BASE)) {
+            baseDataFutures.add(createLoadEventTypesFuture(connectedMessage, clientActor, timeout));
+            baseDataFutures.add(createLoadMarketTypesFuture(connectedMessage, clientActor, timeout));
+        }
 
-                ActorRef bfcRef = actorService.actorFromContext(context(), "BetfairConnectorActor", "betfairConnector");
-                bfcRef.tell(new Disconnect(connectedMessage.replyTo), self());
-            }
-        }, context().dispatcher());
+        if (connectedMessage.processes.contains(ProcessType.EVENTS)) {
+            baseDataFutures.add(createLoadCompetitionsFuture(connectedMessage, clientActor, timeout));
+            baseDataFutures.add(createLoadEventsFuture(connectedMessage, clientActor, timeout));
+        }
+
+//        if (connectedMessage.processes.contains(ProcessType.ODDS)) {
+//
+//        }
+
+        return baseDataFutures;
     }
 
     private Future<Object> createLoadEventsFuture(final Connected connectedMessage, final ActorRef clientActor, final Timeout timeout) {
@@ -142,5 +171,10 @@ public class BetfairBaseDataActor extends AbstractActor {
     }
 
     public static class Start {
+        public final List<ProcessType> processes = new ArrayList<>();
+
+        public void process(final ProcessType processType) {
+            processes.add(processType);
+        }
     }
 }
