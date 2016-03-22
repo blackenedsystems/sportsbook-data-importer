@@ -36,15 +36,8 @@ public class BetfairClient {
     private static final String MATCH_PROJECTION = "matchProjection";
     private static final String ORDER_PROJECTION = "orderProjection";
 
-    private final BetfairConnector betfairConnector;
-
     @Autowired
-    private BetfairConfiguration betfairConfiguration;
-
-    @Autowired
-    public BetfairClient(final BetfairConnector betfairConnector) {
-        this.betfairConnector = betfairConnector;
-    }
+    private BetfairConnector betfairConnector;
 
     /**
      * @return a list of eventTypes/Categories in Betfair's structure, using the default locale for strings.
@@ -64,11 +57,15 @@ public class BetfairClient {
         params.put(FILTER, new MarketFilter());
         params.put(LOCALE, locale.toString());
 
-        String result = betfairConnector.postRequest(APIOperation.LISTEVENTTYPES, params);
-        LOGGER.debug("Result of loadEventTypes: {}", result);
+        Optional<String> result = betfairConnector.postRequest(APIOperation.LISTEVENTTYPES, params);
+        if (result.isPresent()) {
+            LOGGER.debug("Result of loadEventTypes: {}", result);
 
-        List<EventTypeWrapper> etw = Arrays.asList(new ObjectMapper().readValue(result, EventTypeWrapper[].class));
-        return EventTypeWrapper.extractEventTypes(etw);
+            List<EventTypeWrapper> etw = Arrays.asList(new ObjectMapper().readValue(result.get(), EventTypeWrapper[].class));
+            return EventTypeWrapper.extractEventTypes(etw);
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     /**
@@ -97,11 +94,15 @@ public class BetfairClient {
         params.put(FILTER, filter);
         params.put(LOCALE, locale.toString());
 
-        String result = betfairConnector.postRequest(APIOperation.LISTCOMPETITIONS, params);
-        LOGGER.debug("Result of loadCompetitions: {}", result);
+        Optional<String> result = betfairConnector.postRequest(APIOperation.LISTCOMPETITIONS, params);
+        if (result.isPresent()) {
+            LOGGER.debug("Result of loadCompetitions: {}", result);
 
-        List<CompetitionWrapper> cw = Arrays.asList(new ObjectMapper().readValue(result, CompetitionWrapper[].class));
-        return CompetitionWrapper.extractCompetitions(cw);
+            List<CompetitionWrapper> cw = Arrays.asList(new ObjectMapper().readValue(result.get(), CompetitionWrapper[].class));
+            return CompetitionWrapper.extractCompetitions(cw);
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     /**
@@ -122,10 +123,14 @@ public class BetfairClient {
         params.put(FILTER, new MarketFilter());
         params.put(LOCALE, locale.toString());
 
-        String result = betfairConnector.postRequest(APIOperation.LISTMARKETTYPES, params);
-        LOGGER.debug("Result of loadCompetitions: {}", result);
+        Optional<String> result = betfairConnector.postRequest(APIOperation.LISTMARKETTYPES, params);
+        if (result.isPresent()) {
+            LOGGER.debug("Result of loadCompetitions: {}", result);
 
-        return Arrays.asList(new ObjectMapper().readValue(result, MarketType[].class));
+            return Arrays.asList(new ObjectMapper().readValue(result.get(), MarketType[].class));
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     /**
@@ -153,10 +158,14 @@ public class BetfairClient {
         params.put(FILTER, marketFilter);
         params.put(LOCALE, locale.toString());
 
-        String result = betfairConnector.postRequest(APIOperation.LISTEVENTS, params);
-        LOGGER.debug("Result of loadEvents: {}", result);
+        Optional<String> result = betfairConnector.postRequest(APIOperation.LISTEVENTS, params);
+        if (result.isPresent()) {
+            LOGGER.debug("Result of loadEvents: {}", result);
 
-        List<EventWrapper> eventWrappers = Arrays.asList(new ObjectMapper().readValue(result, EventWrapper[].class));
-        return EventWrapper.extractEventTypes(eventWrappers);
+            List<EventWrapper> eventWrappers = Arrays.asList(new ObjectMapper().readValue(result.get(), EventWrapper[].class));
+            return EventWrapper.extractEventTypes(eventWrappers);
+        } else {
+            return new ArrayList<>();
+        }
     }
 }

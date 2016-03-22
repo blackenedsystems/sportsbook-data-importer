@@ -42,9 +42,9 @@
                 <constraints nullable="false"/>
             </column>
 
-            <column name="category"
-                    type="varchar(50)"
-                    remarks="The category to which this data belongs, e.g. competition may have same name in multiple categories."/>
+            <column name="parent"
+                    type="varchar(200)"
+                    remarks="Indication of the parent of this data.  Help text when mapping to internal structures."/>
 
             <column name="created"
                     type="datetime"
@@ -90,16 +90,16 @@
 
     <changeSet id="data-mapping-3" author="alantibbetts">
         <addColumn tableName="data_mapping">
-            <column name="load_children"
+            <column name="active"
                     type="boolean"
                     defaultValue="false"
-                    remarks="Should the direct children of this data be loaded from the external source.">
+                    remarks="If active, data associated with this mapping will be loaded from the external source.">
                 <constraints nullable="false"/>
             </column>
         </addColumn>
 
         <rollback>
-            <dropColumn tableName="data_mapping" columnName="load_children"/>
+            <dropColumn tableName="data_mapping" columnName="active"/>
         </rollback>
     </changeSet>
 </databaseChangeLog>

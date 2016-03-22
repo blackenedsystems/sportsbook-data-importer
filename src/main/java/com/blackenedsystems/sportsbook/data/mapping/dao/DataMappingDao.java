@@ -39,8 +39,8 @@ public class DataMappingDao extends AbstractDao {
         LOGGER.debug("Loading all data mappings.");
 
         List<DataMapping> dataMappings = jdbcTemplate.query(
-                "SELECT id, data_source, data_type, internal_id, external_id, external_description, category, " +
-                "       load_children, created, created_by, updated, updated_by " +
+                "SELECT id, data_source, data_type, internal_id, external_id, external_description, parent, " +
+                "       active, created, created_by, updated, updated_by " +
                 "  FROM data_mapping",
                 (resultSet, i) -> {
                     return mapDataMapping(resultSet);
@@ -57,8 +57,8 @@ public class DataMappingDao extends AbstractDao {
                 .addValue("data_source", externalDataSource.toString())
                 .addValue("data_type", mappingType.toString());
 
-        String sql = "SELECT id, data_source, data_type, internal_id, external_id, external_description, category, " +
-                     "       load_children, created, created_by, updated, updated_by " +
+        String sql = "SELECT id, data_source, data_type, internal_id, external_id, external_description, parent, " +
+                     "       active, created, created_by, updated, updated_by " +
                      "  FROM data_mapping " +
                      " WHERE data_source = :data_source " +
                      "   AND data_type = :data_type ";
@@ -76,19 +76,19 @@ public class DataMappingDao extends AbstractDao {
     }
 
     public List<DataMapping> loadDataMappingsWithLoadChildrenSet(final ExternalDataSource externalDataSource, final MappingType mappingType) {
-        LOGGER.debug("Loading data mappings with load_children set to true for {}/{}.", externalDataSource.toString(), mappingType.toString());
+        LOGGER.debug("Loading data mappings with active set to true for {}/{}.", externalDataSource.toString(), mappingType.toString());
 
         SqlParameterSource parameters = new MapSqlParameterSource()
                 .addValue("data_source", externalDataSource.toString())
                 .addValue("data_type", mappingType.toString());
 
         List<DataMapping> dataMappings = namedParameterJdbcTemplate.query(
-                "SELECT id, data_source, data_type, internal_id, external_id, external_description, category, " +
-                "       load_children, created, created_by, updated, updated_by " +
+                "SELECT id, data_source, data_type, internal_id, external_id, external_description, parent, " +
+                "       active, created, created_by, updated, updated_by " +
                 "  FROM data_mapping " +
                 " WHERE data_source = :data_source " +
                 "   AND data_type = :data_type " +
-                "   AND load_children = true",
+                "   AND active = true",
                 parameters,
                 (resultSet, i) -> {
                     return mapDataMapping(resultSet);
@@ -106,8 +106,8 @@ public class DataMappingDao extends AbstractDao {
                 .addValue("external_id", externalId);
 
         String sql =
-                "SELECT id, data_source, data_type, internal_id, external_id, external_description, category, " +
-                "       load_children, created, created_by, updated, updated_by " +
+                "SELECT id, data_source, data_type, internal_id, external_id, external_description, parent, " +
+                "       active, created, created_by, updated, updated_by " +
                 "  FROM data_mapping " +
                 " WHERE data_source = :data_source " +
                 "   AND data_type = :data_type " +
@@ -129,8 +129,8 @@ public class DataMappingDao extends AbstractDao {
         dataMapping.setExternalDescription(resultSet.getString("external_description"));
         dataMapping.setInternalId(resultSet.getString("internal_id"));
         dataMapping.setMappingType(MappingType.valueOf(resultSet.getString("data_type")));
-        dataMapping.setCategoryName(resultSet.getString("category"));
-        dataMapping.setLoadChildren(resultSet.getBoolean("load_children"));
+        dataMapping.setParent(resultSet.getString("parent"));
+        dataMapping.setActive(resultSet.getBoolean("active"));
 
         dataMapping.setCreatedBy(resultSet.getString("created_by"));
         dataMapping.setCreated(resultSet.getTimestamp("created").toLocalDateTime());
@@ -147,17 +147,17 @@ public class DataMappingDao extends AbstractDao {
 
         String sql =
                 "INSERT INTO data_mapping ( data_source, data_type, internal_id, external_id, " +
-                "                           external_description, category, load_children, created, created_by, updated, updated_by ) " +
+                "                           external_description, parent, active, created, created_by, updated, updated_by ) " +
                 "     VALUES ( :data_source, :data_type, :internal_id, :external_id, :external_description, " +
-                "              :category, :load_children, :created, :created_by, :updated, :updated_by ) ";
+                "              :parent, :active, :created, :created_by, :updated, :updated_by ) ";
 
         MapSqlParameterSource parameters = new MapSqlParameterSource()
                 .addValue("data_source", dataMapping.getExternalDataSource().toString())
                 .addValue("data_type", dataMapping.getMappingType().toString())
                 .addValue("internal_id", dataMapping.getInternalId())
                 .addValue("external_id", dataMapping.getExternalId())
-                .addValue("category", dataMapping.getCategoryName())
-                .addValue("load_children", dataMapping.isLoadChildren())
+                .addValue("parent", dataMapping.getParent())
+                .addValue("active", dataMapping.isActive())
                 .addValue("external_description", dataMapping.getExternalDescription());
 
         addCreatedParameters(parameters, createdBy);
@@ -179,8 +179,8 @@ public class DataMappingDao extends AbstractDao {
                 "            internal_id = :internal_id," +
                 "            external_id = :external_id," +
                 "            external_description = :external_description," +
-                "            category = :category," +
-                "            load_children = :load_children, " +
+                "            parent = :parent," +
+                "            active = :active, " +
                 "            updated= :updated," +
                 "            updated_by= :updated_by" +
                 "      WHERE id = :id";
@@ -190,8 +190,8 @@ public class DataMappingDao extends AbstractDao {
                 .addValue("data_type", dataMapping.getMappingType().toString())
                 .addValue("internal_id", dataMapping.getInternalId())
                 .addValue("external_id", dataMapping.getExternalId())
-                .addValue("category", dataMapping.getCategoryName())
-                .addValue("load_children", dataMapping.isLoadChildren())
+                .addValue("parent", dataMapping.getParent())
+                .addValue("active", dataMapping.isActive())
                 .addValue("external_description", dataMapping.getExternalDescription())
                 .addValue("id", dataMapping.getId());
 

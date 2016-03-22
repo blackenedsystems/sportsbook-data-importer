@@ -20,9 +20,7 @@ import org.springframework.context.annotation.Scope;
 
 import javax.inject.Named;
 import java.io.IOException;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
 
 /**
  * @author Alan Tibbetts
@@ -57,16 +55,22 @@ public class BetfairClientActor extends AbstractActor {
     private void loadEvents(final LoadEvents le) throws IOException {
         List<DataMapping> competitionMappings = dataMappingService.loadDataMappingsMarkedForProcessing(ExternalDataSource.BETFAIR, MappingType.COMPETITION);
 
-        //TODO, what happens when this list is too long? Make multiple calls to Betfair?  Split result over many processor actors?
-        Set<String> idList = competitionMappings.stream()
-                .map(DataMapping::getExternalId)
-                .collect(Collectors.toSet());
+        // Group competitions by category
+        Map<String, Set<String>> idMap = new HashMap<>();
+        for (DataMapping competitionMapping : competitionMappings) {
+            if (!idMap.containsKey(competitionMapping.getParent())) {
+                idMap.put(competitionMapping.getParent(), new HashSet<>());
+            }
+            idMap.get(competitionMapping.getParent()).add(competitionMapping.getExternalId());
+        }
 
-        List<Event> eventList = betfairClient.loadEvents(idList);
-
-        ActorRef eventActor = actorService.actorFromContext(context(), "BetfairEventActor", "betfairEvents");
-        //TODO: load events grouped by category, so we can pass that to the processevents call...
-        eventActor.tell(new BetfairEventActor.ProcessEvents(null, eventList), self());
+        // TODO: load competitions in parallel...
+        // TODO: loading all soccer competitions in one call might be too much, probably have to split into calls of X competitions at a time.
+        for (String category : idMap.keySet()) {
+            List<Event> eventList = betfairClient.loadEvents(idMap.get(category));
+            ActorRef eventActor = actorService.actorFromContext(context(), "BetfairEventActor", "betfairEvents-" + category);
+            eventActor.tell(new BetfairEventActor.ProcessEvents(category, eventList), self());
+        }
 
         sender().tell(new DataLoaded(le.replyTo), self());
     }

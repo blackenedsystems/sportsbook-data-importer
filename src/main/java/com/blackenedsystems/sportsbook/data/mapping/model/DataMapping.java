@@ -14,8 +14,8 @@ public class DataMapping {
     private String internalId;
     private String externalId;
     private String externalDescription;
-    private String categoryName;
-    private boolean loadChildren = false;
+    private String parent;
+    private boolean active = false;
 
     private LocalDateTime created;
     private String createdBy;
@@ -70,12 +70,12 @@ public class DataMapping {
         this.externalDescription = externalDescription;
     }
 
-    public String getCategoryName() {
-        return categoryName;
+    public String getParent() {
+        return parent;
     }
 
-    public void setCategoryName(String categoryName) {
-        this.categoryName = categoryName;
+    public void setParent(String parent) {
+        this.parent = parent;
     }
 
     public LocalDateTime getCreated() {
@@ -110,12 +110,12 @@ public class DataMapping {
         this.updatedBy = updatedBy;
     }
 
-    public boolean isLoadChildren() {
-        return loadChildren;
+    public boolean isActive() {
+        return active;
     }
 
-    public void setLoadChildren(boolean loadChildren) {
-        this.loadChildren = loadChildren;
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     @Override
@@ -127,8 +127,8 @@ public class DataMapping {
                 ", internalId='" + internalId + '\'' +
                 ", externalId='" + externalId + '\'' +
                 ", externalDescription='" + externalDescription + '\'' +
-                ", categoryName='" + categoryName + '\'' +
-                ", loadChildren=" + loadChildren +
+                ", parent='" + parent + '\'' +
+                ", active=" + active +
                 ", created=" + created +
                 ", createdBy='" + createdBy + '\'' +
                 ", updated=" + updated +

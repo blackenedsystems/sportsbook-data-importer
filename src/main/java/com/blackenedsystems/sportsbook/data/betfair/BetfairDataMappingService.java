@@ -62,7 +62,7 @@ public class BetfairDataMappingService {
                 competitionMapping.setMappingType(MappingType.COMPETITION);
                 competitionMapping.setExternalDataSource(ExternalDataSource.BETFAIR);
                 competitionMapping.setExternalId(betfairCompetition.getId().trim());
-                competitionMapping.setCategoryName(category);
+                competitionMapping.setParent(category);
 
                 String description = String.format("%s [%s]", betfairCompetition.getName(), betfairCompetition.getRegion());
                 competitionMapping.setExternalDescription(description);
@@ -100,10 +100,10 @@ public class BetfairDataMappingService {
                 eventMapping.setExternalDataSource(ExternalDataSource.BETFAIR);
                 eventMapping.setExternalId(event.getId().trim());
                 eventMapping.setExternalDescription(event.getName().trim());
-                eventMapping.setCategoryName(category);
+                eventMapping.setParent(category);
 
                 if (betfairConfiguration.loadMarketsAndOdds) {
-                    eventMapping.setLoadChildren(true);
+                    eventMapping.setActive(true);
                 }
 
                 dataMappingService.saveOrUpdate(eventMapping, DataMappingService.INTERNAL_USER);

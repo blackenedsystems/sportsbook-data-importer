@@ -39,6 +39,7 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Handles the connection with Betfair, i.e. login and logout.
@@ -130,7 +131,7 @@ public class BetfairConnector {
      * @param params    parameters to pass to the betfair api
      * @return JSON string representing the response from Betfair.
      */
-    public String postRequest(final APIOperation operation, Map<String, Object> params) throws JsonProcessingException {
+    public Optional<String> postRequest(final APIOperation operation, Map<String, Object> params) throws JsonProcessingException {
         params.put("id", 1);
 
         ObjectMapper om = new ObjectMapper();
@@ -143,8 +144,8 @@ public class BetfairConnector {
         return sendPostRequest(url, requestString);
     }
 
-    private String sendPostRequest(final String url, final String jsonRequest) {
-        String jsonResonse = null;
+    private Optional<String> sendPostRequest(final String url, final String jsonRequest) {
+        Optional<String> jsonResonse = Optional.empty();
 
         try {
             HttpPost post = new HttpPost(url);
@@ -162,7 +163,7 @@ public class BetfairConnector {
             HttpConnectionParams.setConnectionTimeout(httpParams, betfairConfiguration.connectionTimeout);
             HttpConnectionParams.setSoTimeout(httpParams, betfairConfiguration.socketTimeout);
 
-            jsonResonse = httpClient.execute(post, new RestResponseHandler());
+            jsonResonse = Optional.of(httpClient.execute(post, new RestResponseHandler()));
 
         } catch (IOException ioE) {
             String errorMessage = String.format("Failed to send a request to betfair, url: %s", url);

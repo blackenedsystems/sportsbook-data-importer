@@ -155,14 +155,14 @@ public class DataMappingServiceDBTest extends DBTest {
                         dataMapping.setExternalDataSource(ExternalDataSource.BETFAIR);
                         dataMapping.setExternalDescription("American Football");
                         dataMapping.setExternalId("2");
-                        dataMapping.setLoadChildren(true);
+                        dataMapping.setActive(true);
 
                         assertEquals(0, dataMapping.getId());
 
                         DataMapping udm = dataMappingService.saveOrUpdate(dataMapping, DataMappingService.INTERNAL_USER);
                         assertNotNull(udm);
                         assertTrue(udm.getId() > 0);
-                        assertTrue(udm.isLoadChildren());
+                        assertTrue(udm.isActive());
                     }
                 }
         );
@@ -215,7 +215,7 @@ public class DataMappingServiceDBTest extends DBTest {
                         assertNotNull(udm);
                         assertEquals(1, udm.getId());
                         assertEquals("Soccer", udm.getExternalDescription());
-                        assertFalse(udm.isLoadChildren());
+                        assertFalse(udm.isActive());
                     }
                 }
         );
@@ -256,7 +256,7 @@ public class DataMappingServiceDBTest extends DBTest {
 
                         DataMapping dataMapping = odm.get();
                         assertEquals("description", "Football", dataMapping.getExternalDescription());
-                        assertFalse(dataMapping.isLoadChildren());
+                        assertFalse(dataMapping.isActive());
                     }
                 }
         );
@@ -271,12 +271,12 @@ public class DataMappingServiceDBTest extends DBTest {
                         return new String[]{
                                 "INSERT INTO data_mapping " +
                                         "(id, data_source, data_type, external_id, external_description, " +
-                                        " created, created_by, updated, updated_by, load_children) " +
+                                        " created, created_by, updated, updated_by, active) " +
                                         "VALUES (1, 'BETFAIR', 'CATEGORY', '1', 'Football'," +
                                         " CURRENT_TIMESTAMP(), 'system', CURRENT_TIMESTAMP(), 'system', false)",
                                 "INSERT INTO data_mapping " +
                                         "(id, data_source, data_type, external_id, external_description, " +
-                                        " created, created_by, updated, updated_by, load_children) " +
+                                        " created, created_by, updated, updated_by, active) " +
                                         "VALUES (2, 'BETFAIR', 'CATEGORY', '2', 'Tennis'," +
                                         " CURRENT_TIMESTAMP(), 'system', CURRENT_TIMESTAMP(), 'system', true)"
                         };
