@@ -20,7 +20,8 @@ import org.springframework.context.annotation.Scope;
 
 import javax.inject.Named;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * @author Alan Tibbetts
@@ -52,24 +53,26 @@ public class BetfairClientActor extends AbstractActor {
         );
     }
 
+    /**
+     * For each competition mapping marked as active, load associated events.  It is necessary to load events one
+     * competition at a time because Betfair do not return any indication of the event's parent, and if we want to
+     * automatically generate events in the internal model, we need to now the competition to which it belongs.
+     *
+     * This has implications as to how many competitions should be active with Betfair.  Though in any case, Befair should
+     * probably not be the primary data source!
+     */
     private void loadEvents(final LoadEvents le) throws IOException {
         List<DataMapping> competitionMappings = dataMappingService.loadDataMappingsMarkedForProcessing(ExternalDataSource.BETFAIR, MappingType.COMPETITION);
 
-        // Group competitions by category
-        Map<String, Set<String>> idMap = new HashMap<>();
+        // TODO: Parallelise these calls.
         for (DataMapping competitionMapping : competitionMappings) {
-            if (!idMap.containsKey(competitionMapping.getParent())) {
-                idMap.put(competitionMapping.getParent(), new HashSet<>());
-            }
-            idMap.get(competitionMapping.getParent()).add(competitionMapping.getExternalId());
-        }
+            HashSet<String> idSet = new HashSet<>();
+            idSet.add(competitionMapping.getExternalId());
 
-        // TODO: load competitions in parallel...
-        // TODO: loading all soccer competitions in one call might be too much, probably have to split into calls of X competitions at a time.
-        for (String category : idMap.keySet()) {
-            List<Event> eventList = betfairClient.loadEvents(idMap.get(category));
-            ActorRef eventActor = actorService.actorFromContext(context(), "BetfairEventActor", "betfairEvents-" + category);
-            eventActor.tell(new BetfairEventActor.ProcessEvents(category, eventList), self());
+            List<Event> eventList = betfairClient.loadEvents(idSet);
+
+            ActorRef eventActor = actorService.actorFromContext(context(), "BetfairEventActor", "betfairEvents-" + competitionMapping.getExternalId());
+            eventActor.tell(new BetfairEventActor.ProcessEvents(competitionMapping.getExternalDescription(), eventList), self());
         }
 
         sender().tell(new DataLoaded(le.replyTo), self());

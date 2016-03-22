@@ -93,18 +93,19 @@ public class BetfairDataImportActor extends AbstractActor {
      * Construct a list of calls to be made to Betfair.
      */
     private List<Future<Object>> constructFuturesList(final Connected connectedMessage, final ActorRef clientActor) {
-        Timeout timeout = new Timeout(Duration.create(10, "seconds"));
+        Timeout tenSeconds = new Timeout(Duration.create(10, "seconds"));
+        Timeout thirtySeconds = new Timeout(Duration.create(30, "seconds"));
 
         List<Future<Object>> baseDataFutures = new ArrayList<>();
 
         if (connectedMessage.processes.contains(ProcessType.BASE)) {
-            baseDataFutures.add(createLoadEventTypesFuture(connectedMessage, clientActor, timeout));
-            baseDataFutures.add(createLoadMarketTypesFuture(connectedMessage, clientActor, timeout));
+            baseDataFutures.add(createLoadEventTypesFuture(connectedMessage, clientActor, tenSeconds));
+            baseDataFutures.add(createLoadMarketTypesFuture(connectedMessage, clientActor, tenSeconds));
         }
 
         if (connectedMessage.processes.contains(ProcessType.EVENTS)) {
-            baseDataFutures.add(createLoadCompetitionsFuture(connectedMessage, clientActor, timeout));
-            baseDataFutures.add(createLoadEventsFuture(connectedMessage, clientActor, timeout));
+            baseDataFutures.add(createLoadCompetitionsFuture(connectedMessage, clientActor, tenSeconds));
+            baseDataFutures.add(createLoadEventsFuture(connectedMessage, clientActor, thirtySeconds));
         }
 
 //        if (connectedMessage.processes.contains(ProcessType.ODDS)) {

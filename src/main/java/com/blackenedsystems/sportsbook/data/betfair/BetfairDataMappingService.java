@@ -52,9 +52,9 @@ public class BetfairDataMappingService {
 
     /**
      * Checks each of the competitions retrieved from Betfair against the current list of data mappings.  If this is a competition
-     * we've not yet seen, we create a new data mapping row (tagging it with the supplied category), otherwise we ignore it.
+     * we've not yet seen, we create a new data mapping row (tagging it with the supplied parent), otherwise we ignore it.
      */
-    public void processCompetitionList(final String category, final List<Competition> betfairCompetitions) {
+    public void processCompetitionList(final String parent, final List<Competition> betfairCompetitions) {
         for (Competition betfairCompetition : betfairCompetitions) {
             Optional<DataMapping> dataMapping = dataMappingService.findByExternalId(ExternalDataSource.BETFAIR, MappingType.COMPETITION, betfairCompetition.getId().trim());
             if (!dataMapping.isPresent()) {
@@ -62,7 +62,7 @@ public class BetfairDataMappingService {
                 competitionMapping.setMappingType(MappingType.COMPETITION);
                 competitionMapping.setExternalDataSource(ExternalDataSource.BETFAIR);
                 competitionMapping.setExternalId(betfairCompetition.getId().trim());
-                competitionMapping.setParent(category);
+                competitionMapping.setParent(parent);
 
                 String description = String.format("%s [%s]", betfairCompetition.getName(), betfairCompetition.getRegion());
                 competitionMapping.setExternalDescription(description);
@@ -91,7 +91,7 @@ public class BetfairDataMappingService {
         }
     }
 
-    public void processEventList(final String category, final List<Event> eventList) {
+    public void processEventList(final String parent, final List<Event> eventList) {
         for (Event event : eventList) {
             Optional<DataMapping> dataMapping = dataMappingService.findByExternalId(ExternalDataSource.BETFAIR, MappingType.EVENT, event.getId().trim());
             if (!dataMapping.isPresent()) {
@@ -100,7 +100,7 @@ public class BetfairDataMappingService {
                 eventMapping.setExternalDataSource(ExternalDataSource.BETFAIR);
                 eventMapping.setExternalId(event.getId().trim());
                 eventMapping.setExternalDescription(event.getName().trim());
-                eventMapping.setParent(category);
+                eventMapping.setParent(parent);
 
                 if (betfairConfiguration.loadMarketsAndOdds) {
                     eventMapping.setActive(true);
