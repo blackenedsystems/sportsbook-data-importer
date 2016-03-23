@@ -36,6 +36,7 @@ public class BetfairDataMappingService {
      * we've not yet seen, we create a new data mapping row, otherwise we ignore it.
      */
     public void processEventTypeList(final List<EventType> betfairEventTypes) {
+        LOGGER.info("Processing eventType list from betfair, size: {}", betfairEventTypes.size());
         for (EventType betfairEventType : betfairEventTypes) {
             Optional<DataMapping> dataMapping = dataMappingService.findByExternalId(ExternalDataSource.BETFAIR, MappingType.CATEGORY, betfairEventType.getId().trim());
             if (!dataMapping.isPresent()) {
@@ -55,6 +56,7 @@ public class BetfairDataMappingService {
      * we've not yet seen, we create a new data mapping row (tagging it with the supplied parent), otherwise we ignore it.
      */
     public void processCompetitionList(final String parent, final List<Competition> betfairCompetitions) {
+        LOGGER.info("Processing {} competitions for {}", betfairCompetitions.size(), parent);
         for (Competition betfairCompetition : betfairCompetitions) {
             Optional<DataMapping> dataMapping = dataMappingService.findByExternalId(ExternalDataSource.BETFAIR, MappingType.COMPETITION, betfairCompetition.getId().trim());
             if (!dataMapping.isPresent()) {
@@ -77,6 +79,7 @@ public class BetfairDataMappingService {
      * we've not yet seen, we create a new data mapping row, otherwise we ignore it.
      */
     public void processMarketTypeList(final List<MarketType> marketTypeList) {
+        LOGGER.info("Processing marketType list from betfair, size: {}", marketTypeList.size());
         for (MarketType marketType : marketTypeList) {
             Optional<DataMapping> dataMapping = dataMappingService.findByExternalId(ExternalDataSource.BETFAIR, MappingType.MARKET_TYPE, marketType.getMarketType().trim());
             if (!dataMapping.isPresent()) {

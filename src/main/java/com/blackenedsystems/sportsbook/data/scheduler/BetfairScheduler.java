@@ -21,8 +21,11 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -77,52 +80,102 @@ public class BetfairScheduler {
         }
     }
 
-    private void loadEventData() throws IOException {
+    private void loadEventData() throws IOException, ExecutionException, InterruptedException {
         if (iteration % betfairConfiguration.eventDataInterval == 0) {
-            loadCompetitions();
-            loadEvents();
+            List<CompletableFuture<Void>> futureList = new ArrayList<>();
+            futureList.add(loadCompetitions());
+            futureList.add(loadEvents());
+
+            CompletableFuture[] completableFutures = futureList.toArray(new CompletableFuture[futureList.size()]);
+
+            CompletableFuture.allOf(completableFutures)
+                    .whenComplete((s, throwable) -> {
+                        if (throwable != null) {
+                            LOGGER.error("Something really bad happened", throwable);
+                        }
+                    }).get();
         }
     }
 
-    private void loadCompetitions() throws IOException {
+    private CompletableFuture<Void> loadCompetitions() throws IOException {
         List<DataMapping> categoryMappings = dataMappingService.loadDataMappingsMarkedForProcessing(ExternalDataSource.BETFAIR, MappingType.CATEGORY);
 
+        List<CompletableFuture<List<Competition>>> futureList = new ArrayList<>();
+
         for (DataMapping categoryMapping : categoryMappings) {
-            List<Competition> competitions = betfairClient.loadCompetitions(categoryMapping.getExternalId());
-            if (competitions.size() > 0) {
-                betfairDataMappingService.processCompetitionList(categoryMapping.getExternalDescription(), competitions);
-            }
+            CompletableFuture<List<Competition>> cFuture = betfairClient.loadCompetitions(categoryMapping.getExternalId(), executorService);
+            cFuture.whenComplete((competitions, throwable) -> {
+                if (competitions.size() > 0) {
+                    betfairDataMappingService.processCompetitionList(categoryMapping.getExternalDescription(), competitions);
+                }
+            });
+            futureList.add(cFuture);
         }
 
+        CompletableFuture[] completableFutures = futureList.toArray(new CompletableFuture[futureList.size()]);
+        return CompletableFuture.allOf(completableFutures)
+                .whenComplete((s, throwable) -> {
+                    if (throwable != null) {
+                        LOGGER.error("Something bad happened", throwable);
+                    } else {
+                        LOGGER.info("Competition load completed!");
+                    }
+                });
     }
 
     /**
      * For each competition mapping marked as active, load associated events.  It is necessary to load events one
      * competition at a time because Betfair do not return any indication of the event's parent, and if we want to
      * automatically generate events in the internal model, we need to now the competition to which it belongs.
-     *
+     * <p>
      * This has implications as to how many competitions should be active with Betfair.  Though in any case, Befair should
      * probably not be the primary data source!
      */
-    private void loadEvents() throws IOException {
+    private CompletableFuture<Void> loadEvents() throws IOException {
         List<DataMapping> competitionMappings = dataMappingService.loadDataMappingsMarkedForProcessing(ExternalDataSource.BETFAIR, MappingType.COMPETITION);
+
+        List<CompletableFuture<List<Event>>> futureList = new ArrayList<>();
 
         for (DataMapping competitionMapping : competitionMappings) {
             HashSet<String> idSet = new HashSet<>();
             idSet.add(competitionMapping.getExternalId());
 
-            List<Event> eventList = betfairClient.loadEvents(idSet);
-            betfairDataMappingService.processEventList(competitionMapping.getExternalDescription(), eventList);
+            CompletableFuture<List<Event>> eFuture = betfairClient.loadEvents(idSet, executorService);
+            eFuture.whenComplete((eventList, throwable) -> {
+                betfairDataMappingService.processEventList(competitionMapping.getExternalDescription(), eventList);
+            });
+            futureList.add(eFuture);
         }
+
+        CompletableFuture[] completableFutures = futureList.toArray(new CompletableFuture[futureList.size()]);
+        return CompletableFuture.allOf(completableFutures)
+                .whenComplete((s, throwable) -> {
+                    if (throwable != null) {
+                        LOGGER.error("Something bad happened", throwable);
+                    } else {
+                        LOGGER.info("Event load completed!");
+                    }
+                });
     }
 
     private void loadBaseData() throws IOException {
         if (iteration % betfairConfiguration.baseDataInterval == 0) {
-            List<EventType> eventTypes = betfairClient.loadEventTypes();
-            betfairDataMappingService.processEventTypeList(eventTypes);
+            try {
+                CompletableFuture<List<EventType>> etFuture = betfairClient.loadEventTypes(executorService);
+                etFuture.whenComplete((eventTypeList, throwable) -> {
+                    betfairDataMappingService.processEventTypeList(eventTypeList);
+                });
 
-            List<MarketType> marketTypes = betfairClient.loadMarketTypes();
-            betfairDataMappingService.processMarketTypeList(marketTypes);
+                CompletableFuture<List<MarketType>> mtFuture = betfairClient.loadMarketTypes(executorService);
+                mtFuture.whenComplete((marketTypeList, throwable) -> {
+                    betfairDataMappingService.processMarketTypeList(marketTypeList);
+                });
+
+                etFuture.get();
+                mtFuture.get();
+            } catch (Exception e) {
+                LOGGER.error("Failed to load event types", e);
+            }
         }
     }
 
