@@ -43,8 +43,8 @@ public class BetfairClient {
 
     /**
      * @return a list of eventTypes/Categories in Betfair's structure, using the default locale for strings.
+     * @param executorService thread pool used for async execution
      * @throws IOException
-     * @param executorService
      */
     public CompletableFuture<List<EventType>> loadEventTypes(ExecutorService executorService) {
         return loadEventTypes(Locale.getDefault(), executorService);
@@ -52,7 +52,7 @@ public class BetfairClient {
 
     /**
      * @param locale locale to use for strings returned by Betfair
-     * @param executorService
+     * @param executorService thread pool used for async execution
      * @return a list of Sports in Betfair's structure, using the supplied locale for strings.
      * @throws IOException
      */
@@ -130,8 +130,8 @@ public class BetfairClient {
 
     /**
      * @return a list of market types used by Betfair, using the default locale for strings.
+     * @param executorService thread pool used for async execution
      * @throws IOException
-     * @param executorService
      */
     public CompletableFuture<List<MarketType>> loadMarketTypes(final ExecutorService executorService) throws IOException {
         return loadMarketTypes(Locale.getDefault(), executorService);
@@ -139,7 +139,7 @@ public class BetfairClient {
 
     /**
      * @param locale locale to use for strings returned by Betfair
-     * @param executorService
+     * @param executorService thread pool used for async execution
      * @return a list of market types used by Betfair, using the supplied locale for strings.
      * @throws IOException
      */

@@ -53,7 +53,7 @@ public class BetfairScheduler {
     @Autowired
     private DataMappingService dataMappingService;
 
-    ExecutorService executorService = Executors.newFixedThreadPool(30);
+    private ExecutorService executorService = Executors.newFixedThreadPool(30);
     private int iteration = 0;
 
     @Scheduled(cron = "${schedule.betfair.odds}")

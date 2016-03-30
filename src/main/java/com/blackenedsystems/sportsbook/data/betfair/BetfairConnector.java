@@ -52,7 +52,7 @@ public class BetfairConnector {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BetfairConnector.class);
 
-    private static int port = 443;
+    private static final int PORT = 443;
 
     @Autowired
     private BetfairConfiguration betfairConfiguration;
@@ -76,7 +76,7 @@ public class BetfairConnector {
         SSLSocketFactory factory = new SSLSocketFactory(ctx, new StrictHostnameVerifier());
 
         ClientConnectionManager manager = httpClient.getConnectionManager();
-        manager.getSchemeRegistry().register(new Scheme("https", port, factory));
+        manager.getSchemeRegistry().register(new Scheme("https", PORT, factory));
 
         HttpPost httpPost = new HttpPost(betfairConfiguration.loginUrl);
         List<NameValuePair> nvpList = new ArrayList<>();
