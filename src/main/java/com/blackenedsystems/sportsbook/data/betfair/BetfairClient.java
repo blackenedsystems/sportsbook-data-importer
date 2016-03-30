@@ -184,7 +184,7 @@ public class BetfairClient {
         return CompletableFuture.supplyAsync( () -> {
             LOGGER.info("Loading Betfair events for competitions: {}", competitionIds.toArray());
 
-            List<Event> eventList = new ArrayList<Event>();
+            List<Event> eventList = new ArrayList<>();
             try {
                 TimeRange startTime = new TimeRange();
                 startTime.setFrom(new Date());

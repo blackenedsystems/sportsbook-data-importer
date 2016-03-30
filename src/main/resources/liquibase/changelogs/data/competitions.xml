@@ -1,0 +1,20 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="competition-data-1" author="alantibbetts" context="data">
+        <sqlFile path="sql/competitions-1.sql"
+                 relativeToChangelogFile="true"
+                 dbms="postgresql"
+                 encoding="UTF-8"
+                 splitStatements="true"/>
+
+        <!--This should really only delete what was created in the step above!-->
+        <rollback>
+            <sql dbms="postgresql">
+                DELETE FROM competition;
+            </sql>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

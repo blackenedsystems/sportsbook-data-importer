@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import java.time.ZoneId;
 import java.util.List;
 
 /**
@@ -50,9 +51,9 @@ public class MarketDao {
                     market.setMarketType(MarketType.valueOf(resultSet.getString("market_type")));
 
                     market.setCreatedBy(resultSet.getString("created_by"));
-                    market.setCreated(resultSet.getTimestamp("created").toLocalDateTime());
+                    market.setCreated(resultSet.getTimestamp("created").toLocalDateTime().atZone(ZoneId.of("UTC")));
                     market.setCreatedBy(resultSet.getString("updated_by"));
-                    market.setCreated(resultSet.getTimestamp("updated").toLocalDateTime());
+                    market.setCreated(resultSet.getTimestamp("updated").toLocalDateTime().atZone(ZoneId.of("UTC")));
                     return market;
                 });
     }

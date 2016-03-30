@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import java.time.ZoneId;
 import java.util.List;
 
 /**
@@ -49,9 +50,9 @@ public class CountryDao extends AbstractDao {
                     }
 
                     country.setCreatedBy(resultSet.getString("created_by"));
-                    country.setCreated(resultSet.getTimestamp("created").toLocalDateTime());
+                    country.setCreated(resultSet.getTimestamp("created").toLocalDateTime().atZone(ZoneId.of("UTC")));
                     country.setCreatedBy(resultSet.getString("updated_by"));
-                    country.setCreated(resultSet.getTimestamp("updated").toLocalDateTime());
+                    country.setCreated(resultSet.getTimestamp("updated").toLocalDateTime().atZone(ZoneId.of("UTC")));
                     return country;
                 });
     }

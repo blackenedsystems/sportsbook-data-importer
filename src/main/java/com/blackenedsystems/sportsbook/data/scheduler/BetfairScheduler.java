@@ -142,7 +142,7 @@ public class BetfairScheduler {
 
             CompletableFuture<List<Event>> eFuture = betfairClient.loadEvents(idSet, executorService);
             eFuture.whenComplete((eventList, throwable) -> {
-                betfairDataMappingService.processEventList(competitionMapping.getExternalDescription(), eventList);
+                betfairDataMappingService.processEventList(competitionMapping.getInternalId(), competitionMapping.getExternalDescription(), eventList);
             });
             futureList.add(eFuture);
         }

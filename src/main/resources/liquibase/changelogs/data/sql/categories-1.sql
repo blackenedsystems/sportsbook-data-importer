@@ -1,4 +1,4 @@
-INSERT INTO category (default_name, created, created_by, updated, updated_by) VALUES ('Football', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system');
+INSERT INTO category (default_name, created, created_by, updated, updated_by) VALUES ('Soccer', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system');
 INSERT INTO category (default_name, created, created_by, updated, updated_by) VALUES ('Tennis', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system');
 INSERT INTO category (default_name, created, created_by, updated, updated_by) VALUES ('Basketball', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system');
 INSERT INTO category (default_name, created, created_by, updated, updated_by) VALUES ('Ice Hockey', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system');

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.ZoneId;
 import java.util.List;
 
 /**
@@ -69,9 +70,9 @@ public class TranslationDao {
         translation.setTranslation(resultSet.getString("translation"));
 
         translation.setCreatedBy(resultSet.getString("created_by"));
-        translation.setCreated(resultSet.getTimestamp("created").toLocalDateTime());
+        translation.setCreated(resultSet.getTimestamp("created").toLocalDateTime().atZone(ZoneId.of("UTC")));
         translation.setCreatedBy(resultSet.getString("updated_by"));
-        translation.setCreated(resultSet.getTimestamp("updated").toLocalDateTime());
+        translation.setCreated(resultSet.getTimestamp("updated").toLocalDateTime().atZone(ZoneId.of("UTC")));
         return translation;
     }
 }

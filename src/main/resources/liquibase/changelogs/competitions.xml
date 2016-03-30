@@ -66,7 +66,7 @@
     </changeSet>
 
     <changeSet id="competitions-2" author="alantibbetts">
-        <createIndex tableName="competition" indexName="idx_comp_category" unique="true">
+        <createIndex tableName="competition" indexName="idx_comp_category">
             <column name="category_id"/>
         </createIndex>
 
@@ -76,7 +76,7 @@
     </changeSet>
 
     <changeSet id="competitions-3" author="alantibbetts">
-        <createIndex tableName="competition" indexName="idx_comp_cat_country" unique="true">
+        <createIndex tableName="competition" indexName="idx_comp_cat_country">
             <column name="category_id"/>
             <column name="country_code"/>
         </createIndex>
@@ -87,7 +87,7 @@
     </changeSet>
 
     <changeSet id="competitions-4" author="alantibbetts">
-        <createIndex tableName="competition" indexName="idx_comp_cat_region" unique="true">
+        <createIndex tableName="competition" indexName="idx_comp_cat_region">
             <column name="category_id"/>
             <column name="region"/>
         </createIndex>

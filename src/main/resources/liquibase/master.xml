@@ -10,6 +10,8 @@
     <include file="./changelogs/categories.xml" relativeToChangelogFile="true"/>
     <include file="./changelogs/data/categories.xml" relativeToChangelogFile="true"/>
     <include file="./changelogs/competitions.xml" relativeToChangelogFile="true"/>
+    <include file="./changelogs/data/competitions.xml" relativeToChangelogFile="true"/>
     <include file="./changelogs/markets.xml" relativeToChangelogFile="true"/>
+    <include file="./changelogs/events.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
 

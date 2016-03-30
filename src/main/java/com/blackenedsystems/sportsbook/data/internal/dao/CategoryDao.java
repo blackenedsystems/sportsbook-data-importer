@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import java.time.ZoneId;
 import java.util.List;
 
 /**
@@ -44,9 +45,9 @@ public class CategoryDao {
                     }
 
                     category.setCreatedBy(resultSet.getString("created_by"));
-                    category.setCreated(resultSet.getTimestamp("created").toLocalDateTime());
+                    category.setCreated(resultSet.getTimestamp("created").toLocalDateTime().atZone(ZoneId.of("UTC")));
                     category.setCreatedBy(resultSet.getString("updated_by"));
-                    category.setCreated(resultSet.getTimestamp("updated").toLocalDateTime());
+                    category.setCreated(resultSet.getTimestamp("updated").toLocalDateTime().atZone(ZoneId.of("UTC")));
                     return category;
                 });
     }

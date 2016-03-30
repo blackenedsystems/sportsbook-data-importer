@@ -1,0 +1,72 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="events-1" author="alantibbetts">
+        <createTable tableName="event">
+            <column name="id"
+                    autoIncrement="true"
+                    type="int"
+                    remarks="Primary Key">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="default_name"
+                    type="varchar(50)"
+                    remarks="Name of this event in system default language">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="competition_id"
+                    type="int"
+                    remarks="Competition to which this event belongs">
+                <constraints nullable="false" foreignKeyName="fk_event_comp" references="competition(id)"/>
+            </column>
+
+            <column name="start_time"
+                    type="datetime"
+                    remarks="The time this event starts.">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created"
+                    type="datetime"
+                    remarks="Who created this row.">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_by"
+                    type="varchar(20)"
+                    remarks="When this row was created (in UTC)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="updated"
+                    type="datetime"
+                    remarks="Last person to update this row.">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="updated_by"
+                    type="varchar(20)"
+                    remarks="When the row was last updated (in UTC)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="event"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="events-2" author="alantibbetts">
+        <createIndex tableName="event" indexName="idx_event_comp">
+            <column name="competition_id"/>
+        </createIndex>
+
+        <rollback>
+            <dropIndex tableName="event" indexName="idx_event_comp"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

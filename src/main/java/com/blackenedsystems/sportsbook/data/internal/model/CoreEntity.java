@@ -1,6 +1,6 @@
 package com.blackenedsystems.sportsbook.data.internal.model;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 /**
  * @author Alan Tibbetts
@@ -8,16 +8,16 @@ import java.time.LocalDateTime;
  */
 public abstract class CoreEntity {
 
-    private LocalDateTime created;
+    private ZonedDateTime created;
     private String createdBy;
-    private LocalDateTime updated;
+    private ZonedDateTime updated;
     private String updatedBy;
 
-    public LocalDateTime getCreated() {
+    public ZonedDateTime getCreated() {
         return created;
     }
 
-    public void setCreated(LocalDateTime created) {
+    public void setCreated(ZonedDateTime created) {
         this.created = created;
     }
 
@@ -29,11 +29,11 @@ public abstract class CoreEntity {
         this.createdBy = createdBy;
     }
 
-    public LocalDateTime getUpdated() {
+    public ZonedDateTime getUpdated() {
         return updated;
     }
 
-    public void setUpdated(LocalDateTime updated) {
+    public void setUpdated(ZonedDateTime updated) {
         this.updated = updated;
     }
 

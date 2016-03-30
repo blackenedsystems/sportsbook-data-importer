@@ -4,6 +4,7 @@ import com.blackenedsystems.sportsbook.data.betfair.model.Competition;
 import com.blackenedsystems.sportsbook.data.betfair.model.Event;
 import com.blackenedsystems.sportsbook.data.betfair.model.EventType;
 import com.blackenedsystems.sportsbook.data.betfair.model.MarketType;
+import com.blackenedsystems.sportsbook.data.internal.EventService;
 import com.blackenedsystems.sportsbook.data.mapping.DataMappingService;
 import com.blackenedsystems.sportsbook.data.mapping.model.DataMapping;
 import com.blackenedsystems.sportsbook.data.mapping.model.ExternalDataSource;
@@ -12,7 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,6 +34,9 @@ public class BetfairDataMappingService {
 
     @Autowired
     private BetfairConfiguration betfairConfiguration;
+
+    @Autowired
+    private EventService eventService;
 
     /**
      * Checks each of the eventTypes (/categories) retrieved from Betfair against the current list of data mappings.  If this is a category
@@ -53,7 +60,7 @@ public class BetfairDataMappingService {
 
     /**
      * Checks each of the competitions retrieved from Betfair against the current list of data mappings.  If this is a competition
-     * we've not yet seen, we create a new data mapping row (tagging it with the supplied parent), otherwise we ignore it.
+     * we've not yet seen, we create a new data mapping row (tagging it with the supplied competitionName), otherwise we ignore it.
      */
     public void processCompetitionList(final String parent, final List<Competition> betfairCompetitions) {
         LOGGER.info("Processing {} competitions for {}", betfairCompetitions.size(), parent);
@@ -94,7 +101,11 @@ public class BetfairDataMappingService {
         }
     }
 
-    public void processEventList(final String parent, final List<Event> eventList) {
+    /**
+     * Checks each of the events retrieved from Betfair against the current list of data mappings.  If this is an event
+     * we've not yet seen, we create a new data mapping row, otherwise we ignore it.
+     */
+    public void processEventList(final String competitionId, final String competitionName, final List<Event> eventList) {
         for (Event event : eventList) {
             Optional<DataMapping> dataMapping = dataMappingService.findByExternalId(ExternalDataSource.BETFAIR, MappingType.EVENT, event.getId().trim());
             if (!dataMapping.isPresent()) {
@@ -103,14 +114,37 @@ public class BetfairDataMappingService {
                 eventMapping.setExternalDataSource(ExternalDataSource.BETFAIR);
                 eventMapping.setExternalId(event.getId().trim());
                 eventMapping.setExternalDescription(event.getName().trim());
-                eventMapping.setParent(parent);
+                eventMapping.setParent(competitionName);
 
                 if (betfairConfiguration.loadMarketsAndOdds) {
                     eventMapping.setActive(true);
                 }
 
+                // If we've mapped the competition to internal data, then we can create an internal version of the
+                // event too.
+                if (!StringUtils.isEmpty(competitionId)) {
+                    int id = createInternalEvent(competitionId, event);
+                    eventMapping.setInternalId(id + "");
+                }
+
                 dataMappingService.saveOrUpdate(eventMapping, DataMappingService.INTERNAL_USER);
             }
         }
+    }
+
+    private int createInternalEvent(final String competitionId, final Event betfairEvent) {
+        // Betfair send dates in different time zones, better for us if we always use UTC.
+        ZonedDateTime startTime = ZonedDateTime.ofInstant(betfairEvent.getOpenDate().toInstant(), ZoneId.of(betfairEvent.getTimezone()));
+        ZonedDateTime zonedDateTime = startTime.withZoneSameInstant(ZoneId.of("UTC"));
+
+        com.blackenedsystems.sportsbook.data.internal.model.Event internalEvent = new com.blackenedsystems.sportsbook.data.internal.model.Event();
+        internalEvent.setName(betfairEvent.getName());
+        internalEvent.setCompetitionId(Integer.parseInt(competitionId));
+        internalEvent.setStartTime(zonedDateTime);
+
+        LOGGER.info("Saving event: {}", internalEvent);
+
+        internalEvent = eventService.save(internalEvent, DataMappingService.INTERNAL_USER);
+        return internalEvent.getId();
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import java.time.ZoneId;
 import java.util.List;
 
 /**
@@ -20,7 +21,6 @@ public class CompetitionDao {
 
     @Autowired
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-
 
     public List<Competition> loadCompetitions(final int categoryId, final String languageCode) {
         MapSqlParameterSource parameters = new MapSqlParameterSource()
@@ -54,9 +54,10 @@ public class CompetitionDao {
                     }
 
                     competition.setCreatedBy(resultSet.getString("created_by"));
-                    competition.setCreated(resultSet.getTimestamp("created").toLocalDateTime());
+                    competition.setCreated(resultSet.getTimestamp("created").toLocalDateTime().atZone(ZoneId.of("UTC")));
                     competition.setCreatedBy(resultSet.getString("updated_by"));
-                    competition.setCreated(resultSet.getTimestamp("updated").toLocalDateTime());
+                    competition.setCreated(resultSet.getTimestamp("updated").toLocalDateTime().atZone(ZoneId.of("UTC")));
+
                     return competition;
                 });
     }
