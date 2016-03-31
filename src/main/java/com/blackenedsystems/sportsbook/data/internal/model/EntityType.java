@@ -10,5 +10,6 @@ public enum EntityType {
     COMPETITION,
     MARKET,
     MARKET_TYPE,
-    MARKET_INSTRUCTION
+    MARKET_INSTRUCTION,
+    EVENT
 }
