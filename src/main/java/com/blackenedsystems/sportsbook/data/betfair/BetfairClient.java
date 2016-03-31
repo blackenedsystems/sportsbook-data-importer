@@ -44,40 +44,44 @@ public class BetfairClient {
     /**
      * @return a list of eventTypes/Categories in Betfair's structure, using the default locale for strings.
      * @param executorService thread pool used for async execution
-     * @throws IOException
      */
-    public CompletableFuture<List<EventType>> loadEventTypes(ExecutorService executorService) {
-        return loadEventTypes(Locale.getDefault(), executorService);
+    public CompletableFuture<List<EventType>> asyncLoadEventTypes(ExecutorService executorService) {
+        return asyncLoadEventTypes(Locale.getDefault(), executorService);
     }
 
     /**
      * @param locale locale to use for strings returned by Betfair
      * @param executorService thread pool used for async execution
      * @return a list of Sports in Betfair's structure, using the supplied locale for strings.
-     * @throws IOException
      */
-    public CompletableFuture<List<EventType>> loadEventTypes(final Locale locale, final  ExecutorService executorService) {
-        return CompletableFuture.supplyAsync(() -> {
-            LOGGER.info("Loading Betfair event types.");
-            List<EventType> eventTypeList = new ArrayList<>();
+    public CompletableFuture<List<EventType>> asyncLoadEventTypes(final Locale locale, final  ExecutorService executorService) {
+        return CompletableFuture.supplyAsync(() -> loadEventTypes(locale), executorService);
+    }
 
-            Map<String, Object> params = new HashMap<>();
-            params.put(FILTER, new MarketFilter());
-            params.put(LOCALE, locale.toString());
+    /**
+     * @param locale locale to use for strings returned by Betfair
+     * @return a list of Sports in Betfair's structure, using the supplied locale for strings.
+     */
+    public List<EventType> loadEventTypes(Locale locale) {
+        LOGGER.info("Loading Betfair event types.");
+        List<EventType> eventTypeList = new ArrayList<>();
 
-            try {
-                Optional<String> result = betfairConnector.postRequest(APIOperation.LISTEVENTTYPES, params);
-                if (result.isPresent()) {
-                    LOGGER.debug("Result of loadEventTypes: {}", result);
+        Map<String, Object> params = new HashMap<>();
+        params.put(FILTER, new MarketFilter());
+        params.put(LOCALE, locale.toString());
 
-                    List<EventTypeWrapper> etw = Arrays.asList(new ObjectMapper().readValue(result.get(), EventTypeWrapper[].class));
-                    eventTypeList = EventTypeWrapper.extractEventTypes(etw);
-                }
-            } catch (IOException ioe) {
-                LOGGER.error("Failed to load event types from Betfair.", ioe);
+        try {
+            Optional<String> result = betfairConnector.postRequest(APIOperation.LISTEVENTTYPES, params);
+            if (result.isPresent()) {
+                LOGGER.debug("Result of loadEventTypes: {}", result);
+
+                List<EventTypeWrapper> etw = Arrays.asList(new ObjectMapper().readValue(result.get(), EventTypeWrapper[].class));
+                eventTypeList = EventTypeWrapper.extractEventTypes(etw);
             }
-            return eventTypeList;
-        }, executorService);
+        } catch (IOException ioe) {
+            LOGGER.error("Failed to load event types from Betfair.", ioe);
+        }
+        return eventTypeList;
     }
 
     /**
@@ -85,8 +89,8 @@ public class BetfairClient {
      * @return a list of competitions in Betfair's structure for the chosen eventType, using the default locale for strings.
      * @throws IOException
      */
-    public CompletableFuture<List<Competition>> loadCompetitions(final String eventTypeId, final ExecutorService executorService) throws IOException {
-        return loadCompetitions(eventTypeId, Locale.getDefault(), executorService);
+    public CompletableFuture<List<Competition>> asyncLoadCompetitions(final String eventTypeId, final ExecutorService executorService) throws IOException {
+        return asyncLoadCompetitions(eventTypeId, Locale.getDefault(), executorService);
     }
 
     /**
@@ -95,84 +99,93 @@ public class BetfairClient {
      * @return a list of competitions in Betfair's structure for the chosen eventType, using the supplied locale for strings.
      * @throws IOException
      */
-    public CompletableFuture<List<Competition>> loadCompetitions(final String eventTypeId, final Locale locale, final ExecutorService executorService) throws IOException {
+    public CompletableFuture<List<Competition>> asyncLoadCompetitions(final String eventTypeId, final Locale locale, final ExecutorService executorService) throws IOException {
+        return CompletableFuture.supplyAsync( () -> loadCompetitions(eventTypeId, locale), executorService);
+    }
 
-        return CompletableFuture.supplyAsync( () -> {
-            LOGGER.info("Loading Betfair competitions for event type: {}", eventTypeId);
+    /**
+     * @param eventTypeId betfair eventType id, used to filter the list of competitions returned.
+     * @param locale      locale to use for strings returned by Betfair
+     * @return a list of competitions in Betfair's structure for the chosen eventType, using the supplied locale for strings.
+     */
+    public List<Competition> loadCompetitions(String eventTypeId, Locale locale) {
+        LOGGER.info("Loading Betfair competitions for event type: {}", eventTypeId);
 
-            List<Competition> competitionList = new ArrayList<>();
+        List<Competition> competitionList = new ArrayList<>();
 
-            try {
-                HashSet<String> eventTypeIdSet = new HashSet<>();
-                eventTypeIdSet.add(eventTypeId);
+        try {
+            HashSet<String> eventTypeIdSet = new HashSet<>();
+            eventTypeIdSet.add(eventTypeId);
 
-                MarketFilter filter = new MarketFilter();
-                filter.setEventTypeIds(eventTypeIdSet);
+            MarketFilter filter = new MarketFilter();
+            filter.setEventTypeIds(eventTypeIdSet);
 
-                Map<String, Object> params = new HashMap<>();
-                params.put(FILTER, filter);
-                params.put(LOCALE, locale.toString());
+            Map<String, Object> params = new HashMap<>();
+            params.put(FILTER, filter);
+            params.put(LOCALE, locale.toString());
 
-                Optional<String> result = betfairConnector.postRequest(APIOperation.LISTCOMPETITIONS, params);
-                if (result.isPresent()) {
-                    LOGGER.debug("Result of loadCompetitions: {}", result);
-                    List<CompetitionWrapper> cw = Arrays.asList(new ObjectMapper().readValue(result.get(), CompetitionWrapper[].class));
-                    competitionList = CompetitionWrapper.extractCompetitions(cw);
-                }
-            } catch (Exception e) {
-                String errorMessage = String.format("Failed to load competitions for event type: %s", eventTypeId);
-                LOGGER.error(errorMessage, e);
+            Optional<String> result = betfairConnector.postRequest(APIOperation.LISTCOMPETITIONS, params);
+            if (result.isPresent()) {
+                LOGGER.debug("Result of loadCompetitions: {}", result);
+                List<CompetitionWrapper> cw = Arrays.asList(new ObjectMapper().readValue(result.get(), CompetitionWrapper[].class));
+                competitionList = CompetitionWrapper.extractCompetitions(cw);
             }
+        } catch (Exception e) {
+            String errorMessage = String.format("Failed to load competitions for event type: %s", eventTypeId);
+            LOGGER.error(errorMessage, e);
+        }
 
-            return competitionList;
-        }, executorService);
+        return competitionList;
     }
 
     /**
      * @return a list of market types used by Betfair, using the default locale for strings.
      * @param executorService thread pool used for async execution
-     * @throws IOException
      */
-    public CompletableFuture<List<MarketType>> loadMarketTypes(final ExecutorService executorService) throws IOException {
-        return loadMarketTypes(Locale.getDefault(), executorService);
+    public CompletableFuture<List<MarketType>> asyncLoadMarketTypes(final ExecutorService executorService) {
+        return asyncLoadMarketTypes(Locale.getDefault(), executorService);
     }
 
     /**
      * @param locale locale to use for strings returned by Betfair
      * @param executorService thread pool used for async execution
      * @return a list of market types used by Betfair, using the supplied locale for strings.
-     * @throws IOException
      */
-    private CompletableFuture<List<MarketType>> loadMarketTypes(final Locale locale, final ExecutorService executorService) throws IOException {
-        return CompletableFuture.supplyAsync(() -> {
-            LOGGER.info("Loading Betfair market types.");
-            List<MarketType> marketTypeList = new ArrayList<>();
+    private CompletableFuture<List<MarketType>> asyncLoadMarketTypes(final Locale locale, final ExecutorService executorService)  {
+        return CompletableFuture.supplyAsync(() -> loadMarketTypes(locale), executorService);
+    }
 
-            try {
-                Map<String, Object> params = new HashMap<>();
-                params.put(FILTER, new MarketFilter());
-                params.put(LOCALE, locale.toString());
+    /**
+     * @param locale locale to use for strings returned by Betfair
+     * @return a list of market types used by Betfair, using the supplied locale for strings.
+     */
+    public List<MarketType> loadMarketTypes(Locale locale) {
+        LOGGER.info("Loading Betfair market types.");
+        List<MarketType> marketTypeList = new ArrayList<>();
 
-                Optional<String> result = betfairConnector.postRequest(APIOperation.LISTMARKETTYPES, params);
-                if (result.isPresent()) {
-                    LOGGER.debug("Result of loadCompetitions: {}", result);
-                    marketTypeList = Arrays.asList(new ObjectMapper().readValue(result.get(), MarketType[].class));
-                }
-            } catch (Exception e) {
-                LOGGER.error("Failed to load market types from Betfair", e);
+        try {
+            Map<String, Object> params = new HashMap<>();
+            params.put(FILTER, new MarketFilter());
+            params.put(LOCALE, locale.toString());
+
+            Optional<String> result = betfairConnector.postRequest(APIOperation.LISTMARKETTYPES, params);
+            if (result.isPresent()) {
+                LOGGER.debug("Result of load market types: {}", result);
+                marketTypeList = Arrays.asList(new ObjectMapper().readValue(result.get(), MarketType[].class));
             }
+        } catch (Exception e) {
+            LOGGER.error("Failed to load market types from Betfair", e);
+        }
 
-            return marketTypeList;
-        }, executorService);
-
+        return marketTypeList;
     }
 
     /**
      * @param competitionIds the betfair competition ids for which we should load events.
      * @return  a list of events for the specified competitions, with start times after 'now', using the default locale for strings.
      */
-    public CompletableFuture<List<Event>> loadEvents(final Set<String> competitionIds, final ExecutorService executorService) throws IOException {
-        return loadEvents(competitionIds, Locale.getDefault(), executorService);
+    public CompletableFuture<List<Event>> asyncLoadEvents(final Set<String> competitionIds, final ExecutorService executorService) throws IOException {
+        return asyncLoadEvents(competitionIds, Locale.getDefault(), executorService);
     }
 
     /**
@@ -180,35 +193,42 @@ public class BetfairClient {
      * @param locale         locale to use for strings returned by Betfair
      * @return  a list of events for the specified competitions, with start times after 'now'.
      */
-    public CompletableFuture<List<Event>> loadEvents(final Set<String> competitionIds, final Locale locale, final ExecutorService executorService) throws IOException {
-        return CompletableFuture.supplyAsync( () -> {
-            LOGGER.info("Loading Betfair events for competitions: {}", competitionIds.toArray());
+    public CompletableFuture<List<Event>> asyncLoadEvents(final Set<String> competitionIds, final Locale locale, final ExecutorService executorService) throws IOException {
+        return CompletableFuture.supplyAsync( () -> loadEvents(competitionIds, locale), executorService);
+    }
 
-            List<Event> eventList = new ArrayList<>();
-            try {
-                TimeRange startTime = new TimeRange();
-                startTime.setFrom(new Date());
+    /**
+     * @param competitionIds the betfair competition ids for which we should load events.
+     * @param locale         locale to use for strings returned by Betfair
+     * @return  a list of events for the specified competitions, with start times after 'now'.
+     */
+    public List<Event> loadEvents(Set<String> competitionIds, Locale locale) {
+        LOGGER.info("Loading Betfair events for competitions: {}", competitionIds.toArray());
 
-                MarketFilter marketFilter = new MarketFilter();
-                marketFilter.setCompetitionIds(competitionIds);
-                marketFilter.setMarketStartTime(startTime);
+        List<Event> eventList = new ArrayList<>();
+        try {
+            TimeRange startTime = new TimeRange();
+            startTime.setFrom(new Date());
 
-                Map<String, Object> params = new HashMap<>();
-                params.put(FILTER, marketFilter);
-                params.put(LOCALE, locale.toString());
+            MarketFilter marketFilter = new MarketFilter();
+            marketFilter.setCompetitionIds(competitionIds);
+            marketFilter.setMarketStartTime(startTime);
 
-                Optional<String> result = betfairConnector.postRequest(APIOperation.LISTEVENTS, params);
-                if (result.isPresent()) {
-                    LOGGER.debug("Result of loadEvents: {}", result);
+            Map<String, Object> params = new HashMap<>();
+            params.put(FILTER, marketFilter);
+            params.put(LOCALE, locale.toString());
 
-                    List<EventWrapper> eventWrappers = Arrays.asList(new ObjectMapper().readValue(result.get(), EventWrapper[].class));
-                    eventList = EventWrapper.extractEventTypes(eventWrappers);
-                }
-            } catch (Exception e) {
-                String errorMessage = String.format("Failed to load events for competitions: %s", competitionIds.toArray());
-                LOGGER.error(errorMessage, e);
+            Optional<String> result = betfairConnector.postRequest(APIOperation.LISTEVENTS, params);
+            if (result.isPresent()) {
+                LOGGER.debug("Result of loadEvents: {}", result);
+
+                List<EventWrapper> eventWrappers = Arrays.asList(new ObjectMapper().readValue(result.get(), EventWrapper[].class));
+                eventList = EventWrapper.extractEventTypes(eventWrappers);
             }
-            return eventList;
-        }, executorService);
+        } catch (Exception e) {
+            String errorMessage = String.format("Failed to load events for competitions: %s", competitionIds.toArray());
+            LOGGER.error(errorMessage, e);
+        }
+        return eventList;
     }
 }

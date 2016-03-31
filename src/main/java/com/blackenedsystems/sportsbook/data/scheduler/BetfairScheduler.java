@@ -63,6 +63,7 @@ public class BetfairScheduler {
             betfairConnector.logon();
             loadBaseData();
             loadEventData();
+//            loadEventMarkets();
 
             iteration++;
         } catch (Exception e) {
@@ -80,6 +81,47 @@ public class BetfairScheduler {
         }
     }
 
+    /**
+     * Loads sport, market types and other base data from Betfair.  This data should not be updated very often at all, this
+     * data could be fetched once per week.
+     */
+    private void loadBaseData() {
+        if (iteration % betfairConfiguration.baseDataInterval == 0) {
+            try {
+                CompletableFuture<List<EventType>> etFuture = betfairClient.asyncLoadEventTypes(executorService);
+                etFuture.whenComplete((eventTypeList, throwable) -> {
+                    betfairDataMappingService.processEventTypeList(eventTypeList);
+                });
+
+                CompletableFuture<List<MarketType>> mtFuture = betfairClient.asyncLoadMarketTypes(executorService);
+                mtFuture.whenComplete((marketTypeList, throwable) -> {
+                    betfairDataMappingService.processMarketTypeList(marketTypeList);
+                });
+
+                etFuture.get();
+                mtFuture.get();
+            } catch (Exception e) {
+                LOGGER.error("Failed to load event types", e);
+            }
+        }
+    }
+
+    /**
+     * Loads event market and odds data from Betfair. This occurs on every iteration of the job - the odds are the
+     * data that changes most frequently.
+     */
+    private void loadEventMarkets()  {
+        try {
+
+        } catch (Exception e) {
+            LOGGER.error("Failed to load event market/odds data.");
+        }
+    }
+
+    /**
+     * Load competition and event data from Betfair.  This data changes infrequently, therefore data should be retrieved
+     * no more than a few times per day; once per day would probably be sufficient.
+     */
     private void loadEventData() throws IOException, ExecutionException, InterruptedException {
         if (iteration % betfairConfiguration.eventDataInterval == 0) {
             List<CompletableFuture<Void>> futureList = new ArrayList<>();
@@ -103,7 +145,7 @@ public class BetfairScheduler {
         List<CompletableFuture<List<Competition>>> futureList = new ArrayList<>();
 
         for (DataMapping categoryMapping : categoryMappings) {
-            CompletableFuture<List<Competition>> cFuture = betfairClient.loadCompetitions(categoryMapping.getExternalId(), executorService);
+            CompletableFuture<List<Competition>> cFuture = betfairClient.asyncLoadCompetitions(categoryMapping.getExternalId(), executorService);
             cFuture.whenComplete((competitions, throwable) -> {
                 if (competitions.size() > 0) {
                     betfairDataMappingService.processCompetitionList(categoryMapping.getExternalDescription(), competitions);
@@ -140,7 +182,7 @@ public class BetfairScheduler {
             HashSet<String> idSet = new HashSet<>();
             idSet.add(competitionMapping.getExternalId());
 
-            CompletableFuture<List<Event>> eFuture = betfairClient.loadEvents(idSet, executorService);
+            CompletableFuture<List<Event>> eFuture = betfairClient.asyncLoadEvents(idSet, executorService);
             eFuture.whenComplete((eventList, throwable) -> {
                 betfairDataMappingService.processEventList(competitionMapping.getInternalId(), competitionMapping.getExternalDescription(), eventList);
             });
@@ -158,25 +200,6 @@ public class BetfairScheduler {
                 });
     }
 
-    private void loadBaseData() throws IOException {
-        if (iteration % betfairConfiguration.baseDataInterval == 0) {
-            try {
-                CompletableFuture<List<EventType>> etFuture = betfairClient.loadEventTypes(executorService);
-                etFuture.whenComplete((eventTypeList, throwable) -> {
-                    betfairDataMappingService.processEventTypeList(eventTypeList);
-                });
 
-                CompletableFuture<List<MarketType>> mtFuture = betfairClient.loadMarketTypes(executorService);
-                mtFuture.whenComplete((marketTypeList, throwable) -> {
-                    betfairDataMappingService.processMarketTypeList(marketTypeList);
-                });
-
-                etFuture.get();
-                mtFuture.get();
-            } catch (Exception e) {
-                LOGGER.error("Failed to load event types", e);
-            }
-        }
-    }
 
 }
