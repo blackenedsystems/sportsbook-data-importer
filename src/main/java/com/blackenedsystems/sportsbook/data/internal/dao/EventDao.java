@@ -11,7 +11,10 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 
@@ -21,6 +24,12 @@ import java.util.List;
  */
 @Component
 public class EventDao extends AbstractDao {
+
+    private static final String LOAD_EVENTS_QUERY =
+            "SELECT e.id, e.default_name, t.translation, e.competition_id, e.start_time, e.created, e.created_by, e.updated, e.updated_by " +
+            "  FROM event e " +
+            "  LEFT JOIN translation t ON t.entity_type = :entityType AND t.language_code = :language AND t.entity_key = e.id " +
+            " WHERE competition_id = :competitionId";
 
     @Autowired
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
@@ -48,11 +57,7 @@ public class EventDao extends AbstractDao {
     }
 
     public List<Event> loadEvents(final int competitionId, final String languageCode) {
-        String sql =
-                "SELECT e.id, e.default_name, t.translation, e.competition_id, e.start_time, e.created, e.created_by, e.updated, e.updated_by " +
-                "  FROM event e " +
-                "  LEFT JOIN translation t ON t.entity_type = :entityType AND t.language_code = :language AND t.entity_key = e.id " +
-                " WHERE competition_id = :competitionId";
+        String sql = LOAD_EVENTS_QUERY;
 
         MapSqlParameterSource parameters = new MapSqlParameterSource()
                 .addValue("entityType", EntityType.EVENT.toString())
@@ -63,24 +68,45 @@ public class EventDao extends AbstractDao {
                 sql,
                 parameters,
                 (resultSet, i) -> {
-                    Event event = new Event();
-                    event.setId(resultSet.getInt("id"));
-                    event.setCompetitionId(resultSet.getInt("competition_id"));
-
-                    if (!StringUtils.isEmpty(resultSet.getString("translation"))) {
-                        event.setName(resultSet.getString("translation"));
-                    } else {
-                        event.setName(resultSet.getString("default_name"));
-                    }
-
-                    event.setStartTime(resultSet.getTimestamp("start_time").toLocalDateTime().atZone(ZoneId.of("UTC")));
-
-                    event.setCreatedBy(resultSet.getString("created_by"));
-                    event.setCreated(resultSet.getTimestamp("created").toLocalDateTime().atZone(ZoneId.of("UTC")));
-                    event.setCreatedBy(resultSet.getString("updated_by"));
-                    event.setCreated(resultSet.getTimestamp("updated").toLocalDateTime().atZone(ZoneId.of("UTC")));
-
-                    return event;
+                    return extractEvent(resultSet);
                 });
+    }
+
+    public List<Event> loadUpcomingEvents(final int competitionId, final String languageCode) {
+        String sql = LOAD_EVENTS_QUERY + " AND start_time >= :now";
+
+        MapSqlParameterSource parameters = new MapSqlParameterSource()
+                .addValue("entityType", EntityType.EVENT.toString())
+                .addValue("competitionId", competitionId)
+                .addValue("language", languageCode)
+                .addValue("now", Timestamp.valueOf(LocalDateTime.now(ZoneId.of("UTC"))));
+
+        return namedParameterJdbcTemplate.query(
+                sql,
+                parameters,
+                (resultSet, i) -> {
+                    return extractEvent(resultSet);
+                });
+    }
+
+    private Event extractEvent(ResultSet resultSet) throws SQLException {
+        Event event = new Event();
+        event.setId(resultSet.getInt("id"));
+        event.setCompetitionId(resultSet.getInt("competition_id"));
+
+        if (!StringUtils.isEmpty(resultSet.getString("translation"))) {
+            event.setName(resultSet.getString("translation"));
+        } else {
+            event.setName(resultSet.getString("default_name"));
+        }
+
+        event.setStartTime(resultSet.getTimestamp("start_time").toLocalDateTime().atZone(ZoneId.of("UTC")));
+
+        event.setCreatedBy(resultSet.getString("created_by"));
+        event.setCreated(resultSet.getTimestamp("created").toLocalDateTime().atZone(ZoneId.of("UTC")));
+        event.setCreatedBy(resultSet.getString("updated_by"));
+        event.setCreated(resultSet.getTimestamp("updated").toLocalDateTime().atZone(ZoneId.of("UTC")));
+
+        return event;
     }
 }

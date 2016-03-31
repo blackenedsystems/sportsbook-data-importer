@@ -38,4 +38,14 @@ public class EventController {
         List<Event> eventList = eventService.loadEvents(competitionId, languageCode);
         return ResponseEntity.ok(eventList);
     }
+
+    @RequestMapping(
+            value = "/upcoming/{competitionId}",
+            method = RequestMethod.GET
+    )
+    public ResponseEntity loadUpcomingEvents(@PathVariable("competitionId") int competitionId,
+                                             @RequestParam(value = "lc", required = false, defaultValue = SportsbookDataImporterConfiguration.DEFAULT_LANGUAGE) String languageCode) {
+        List<Event> eventList = eventService.loadUpcomingEvents(competitionId, languageCode);
+        return ResponseEntity.ok(eventList);
+    }
 }

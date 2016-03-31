@@ -17,9 +17,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Alan Tibbetts
@@ -34,6 +34,7 @@ public class EventServiceDBTest extends DBTest {
     private EventService eventService;
 
     private static final ArrayList<String> BASE_DATA_SET = new ArrayList<>();
+    private static final ArrayList<String> EVENT_SET = new ArrayList<>();
 
     @BeforeClass
     public static void setupData() {
@@ -46,6 +47,16 @@ public class EventServiceDBTest extends DBTest {
         BASE_DATA_SET.add(
                 "INSERT INTO competition (category_id, country_code, default_name, created, created_by, updated, updated_by) " +
                         "VALUES (1, 'DE', 'Bundesliga', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system')");
+
+        EVENT_SET.add(
+                "INSERT INTO event (competition_id, default_name, start_time, created, created_by, updated, updated_by) " +
+                        "VALUES (1, 'Hertha BSC v Bayern Munich', DATEADD('HOUR', 1, CURRENT_TIMESTAMP), CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system')");
+        EVENT_SET.add(
+                "INSERT INTO translation (entity_type, language_code, entity_key, translation, created, created_by, updated, updated_by) " +
+                        "VALUES ('EVENT', 'de', '1', 'Hertha BSC v Bayern München', CURRENT_TIMESTAMP(), 'system', CURRENT_TIMESTAMP(), 'system')");
+        EVENT_SET.add(
+                "INSERT INTO event (competition_id, default_name, start_time, created, created_by, updated, updated_by) " +
+                        "VALUES (1, 'Schalke 04 v Eintracht Frankfurt', DATEADD('DAY', -1, CURRENT_TIMESTAMP), CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system')");
     }
 
     @Test
@@ -85,5 +96,197 @@ public class EventServiceDBTest extends DBTest {
                         Event savedEvent = eventService.save(event, DataMappingService.INTERNAL_USER);
                     }
                 });
+    }
+
+    @Test
+    public void loadEvents_ok() throws Exception {
+        executeTest(
+                new AbstractDBTestExecutor() {
+                    @Override
+                    public String[] getInitialisationSQL() {
+                        ArrayList<String> sql = new ArrayList<>();
+                        sql.addAll(BASE_DATA_SET);
+                        sql.addAll(EVENT_SET);
+
+                        return sql.toArray(new String[sql.size()]);
+                    }
+
+                    @Override
+                    public void execute() {
+                        List<Event> eventList = eventService.loadEvents(1, "en");
+                        assertNotNull(eventList);
+                        assertEquals(2, eventList.size());
+
+                        Event event = eventList.get(0);
+                        assertNotNull(event);
+                        assertEquals("Hertha BSC v Bayern Munich", event.getName());
+                    }
+                }
+        );
+    }
+
+    @Test
+    public void loadEvents_ok_inGerman() throws Exception {
+        executeTest(
+                new AbstractDBTestExecutor() {
+                    @Override
+                    public String[] getInitialisationSQL() {
+                        ArrayList<String> sql = new ArrayList<>();
+                        sql.addAll(BASE_DATA_SET);
+                        sql.addAll(EVENT_SET);
+
+                        return sql.toArray(new String[sql.size()]);
+                    }
+
+                    @Override
+                    public void execute() {
+                        List<Event> eventList = eventService.loadEvents(1, "de");
+                        assertNotNull(eventList);
+                        assertEquals(2, eventList.size());
+
+                        Event event = eventList.get(0);
+                        assertNotNull(event);
+                        assertEquals("Hertha BSC v Bayern München", event.getName());
+                    }
+                }
+        );
+    }
+
+    @Test
+    public void loadEvents_empty() throws Exception {
+        executeTest(
+                new AbstractDBTestExecutor() {
+                    @Override
+                    public String[] getInitialisationSQL() {
+                        return BASE_DATA_SET.toArray(new String[BASE_DATA_SET.size()]);
+                    }
+
+                    @Override
+                    public void execute() {
+                        List<Event> eventList = eventService.loadEvents(1, "en");
+                        assertNotNull(eventList);
+                        assertEquals(0, eventList.size());
+                    }
+                }
+        );
+    }
+
+    @Test
+    public void loadEvents_empty_invalidCompetition() throws Exception {
+        executeTest(
+                new AbstractDBTestExecutor() {
+                    @Override
+                    public String[] getInitialisationSQL() {
+                        ArrayList<String> sql = new ArrayList<>();
+                        sql.addAll(BASE_DATA_SET);
+                        sql.addAll(EVENT_SET);
+
+                        return sql.toArray(new String[sql.size()]);
+                    }
+
+                    @Override
+                    public void execute() {
+                        List<Event> eventList = eventService.loadEvents(10, "en");
+                        assertNotNull(eventList);
+                        assertEquals(0, eventList.size());
+                    }
+                }
+        );
+    }
+
+    @Test
+    public void loadUpcomingEvents_ok() throws Exception {
+        executeTest(
+                new AbstractDBTestExecutor() {
+                    @Override
+                    public String[] getInitialisationSQL() {
+                        ArrayList<String> sql = new ArrayList<>();
+                        sql.addAll(BASE_DATA_SET);
+                        sql.addAll(EVENT_SET);
+
+                        return sql.toArray(new String[sql.size()]);
+                    }
+
+                    @Override
+                    public void execute() {
+                        List<Event> eventList = eventService.loadUpcomingEvents(1, "en");
+                        assertNotNull(eventList);
+                        assertEquals(1, eventList.size());
+
+                        Event event = eventList.get(0);
+                        assertNotNull(event);
+                        assertEquals("Hertha BSC v Bayern Munich", event.getName());
+                    }
+                }
+        );
+    }
+
+    @Test
+    public void loadUpcomingEvents_ok_inGerman() throws Exception {
+        executeTest(
+                new AbstractDBTestExecutor() {
+                    @Override
+                    public String[] getInitialisationSQL() {
+                        ArrayList<String> sql = new ArrayList<>();
+                        sql.addAll(BASE_DATA_SET);
+                        sql.addAll(EVENT_SET);
+
+                        return sql.toArray(new String[sql.size()]);
+                    }
+
+                    @Override
+                    public void execute() {
+                        List<Event> eventList = eventService.loadUpcomingEvents(1, "de");
+                        assertNotNull(eventList);
+                        assertEquals(1, eventList.size());
+
+                        Event event = eventList.get(0);
+                        assertNotNull(event);
+                        assertEquals("Hertha BSC v Bayern München", event.getName());
+                    }
+                }
+        );
+    }
+
+    @Test
+    public void loadUpcomingEvents_empty() throws Exception {
+        executeTest(
+                new AbstractDBTestExecutor() {
+                    @Override
+                    public String[] getInitialisationSQL() {
+                        ArrayList<String> sql = new ArrayList<>();
+                        sql.addAll(BASE_DATA_SET);
+                        sql.addAll(EVENT_SET);
+
+                        return sql.toArray(new String[sql.size()]);
+                    }
+
+                    @Override
+                    public void execute() {
+                        List<Event> eventList = eventService.loadUpcomingEvents(2, "en");
+                        assertNotNull(eventList);
+                        assertEquals(0, eventList.size());
+                    }
+                }
+        );
+    }
+
+    @Test
+    public void loadUpcomingEvents_empty_invalidCompetition() throws Exception {
+        executeTest(
+                new AbstractDBTestExecutor() {
+                    @Override
+                    public String[] getInitialisationSQL() {
+                        return BASE_DATA_SET.toArray(new String[BASE_DATA_SET.size()]);
+                    }
+
+                    @Override
+                    public void execute() {
+                        List<Event> eventList = eventService.loadUpcomingEvents(1, "en");
+                        assertNotNull(eventList);
+                        assertEquals(0, eventList.size());
+                    }
+                }
+        );
     }
 }

@@ -28,4 +28,9 @@ public class EventService {
     public List<Event> loadEvents(final int competitionId, final String languageCode) {
         return eventDao.loadEvents(competitionId, languageCode);
     }
+
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+    public List<Event> loadUpcomingEvents(final int competitionId, final String languageCode) {
+        return eventDao.loadUpcomingEvents(competitionId, languageCode);
+    }
 }
