@@ -12,7 +12,7 @@ See [here](./roadmap.md)
 ## Configuraton
 
 As an open source project, it would not be too clever to check in passwords, ssl certificates and the like, therefore, 
-the large percentage of configuration for this project is stored in external files.   Full details can be 
+a large percentage of configuration for this project is stored in external files.   Full details can be
 found [here](./configuration.md).
 
 ## Building

@@ -5,16 +5,22 @@ issues will be recorded in GitHub.
 
 The high level roadmap for the project looks like this:
 
-### Mar 2016
+### Recently completed
 
 * Create a Spring Boot based service that will:
  * Connect to various data providers.
-   * Betfair Implementation
-     * Map base data: sports, competitions, etc to internal data.
-     * Periodically load events (and odds) for specified Competitions.
- * Map base data, such as sports and competitions to internal structures via a GUI.
- * Create events (and odds) associated with the various competitions and connect them to the internal structures. 
- * Provide a REST api to access current event data.
+  * Betfair Implementation
+   * Map base data: sports, competitions, etc to internal data.
+   * Load events from Betfair for specified competitions.
+   * Connect events to the internal structures.
+   * Provide a REST api to access various internal structures.
+
+### Apr 2016
+
+* Betfair Implementation
+ * Periodically load markets and odds for specified Events.
+* GUI
+ * Map base data, such as sports and competitions to internal structures.
 * Deployment
  * Deploy the service to AWS
 * Integrate with Blackened sportsbook

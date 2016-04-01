@@ -2,12 +2,23 @@
 
 ## Build Configuration
 
+These properties are core to the operation of the system but will vary from installation to installation and environment to environment.
 
+Database related properties.
+
+* __db.driverClass__ : java, database driver class name.
+* __db.jdbcURL__ : jdbc url to the database.
+* __db.user__ : user name to use when connecting to the database.
+* __db.password__ : password to use when connecting to the database.
+
+Scheduling related properties.  These control the timing of various jobs that execute periodically.
+
+* __schedule.betfair.odds__ :  cron string defining when updates to markets and odds should be retrieved from Betfair.
 
 ## Data Source Property Templates
 
-The folder: 'properties', contains template configuration files for the various data services.  
- 
+The folder: 'properties', contains template configuration files for the various data services.
+
 ### Betfair
 
 There are a number of steps to complete with Betfair before you can use this application to extract data via their api.  Full documentation
@@ -37,4 +48,8 @@ __User / Environment Specific Properties__
 * __betfair.api.password__ : betfair api password  
 * __betfair.api.key__ : betfair api key 
 
+* __betfair.workflow.event.interval__ : This is based on the __schedule.betfair.odds__ property.  Every X times the job executes, events should be loaded too.
+* __betfair.workflow.basedata.interval__ : This is based on the __schedule.betfair.odds__ property.  Every X times the job executes, sports, etc should be loaded too.
+
+* __betfair.load.odds__ : should markets and odds be created from Betfair data?
  
