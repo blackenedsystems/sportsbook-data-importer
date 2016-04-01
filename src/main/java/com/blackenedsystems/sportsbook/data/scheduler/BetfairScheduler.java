@@ -4,10 +4,7 @@ import com.blackenedsystems.sportsbook.data.betfair.BetfairClient;
 import com.blackenedsystems.sportsbook.data.betfair.BetfairConfiguration;
 import com.blackenedsystems.sportsbook.data.betfair.BetfairConnector;
 import com.blackenedsystems.sportsbook.data.betfair.BetfairDataMappingService;
-import com.blackenedsystems.sportsbook.data.betfair.model.Competition;
-import com.blackenedsystems.sportsbook.data.betfair.model.Event;
-import com.blackenedsystems.sportsbook.data.betfair.model.EventType;
-import com.blackenedsystems.sportsbook.data.betfair.model.MarketType;
+import com.blackenedsystems.sportsbook.data.betfair.model.*;
 import com.blackenedsystems.sportsbook.data.mapping.DataMappingService;
 import com.blackenedsystems.sportsbook.data.mapping.model.DataMapping;
 import com.blackenedsystems.sportsbook.data.mapping.model.ExternalDataSource;
@@ -24,10 +21,12 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 /**
  * @author Alan Tibbetts
@@ -63,7 +62,7 @@ public class BetfairScheduler {
             betfairConnector.logon();
             loadBaseData();
             loadEventData();
-//            loadEventMarkets();
+            loadEventMarkets();
 
             iteration++;
         } catch (Exception e) {
@@ -109,13 +108,47 @@ public class BetfairScheduler {
     /**
      * Loads event market and odds data from Betfair. This occurs on every iteration of the job - the odds are the
      * data that changes most frequently.
+     *
+     * NB. Betfair have a limit on the amount of data that can be retrieved on each call.  Therefore, we request markets
+     * for all events associated with a single competition, and only for those markets we've marked as active.  We make
+     * one call per active competition.
      */
-    private void loadEventMarkets()  {
-        try {
+    private void loadEventMarkets() throws IOException, ExecutionException, InterruptedException {
+        List<CompletableFuture<List<Market>>> futureList = new ArrayList<>();
 
-        } catch (Exception e) {
-            LOGGER.error("Failed to load event market/odds data.");
+        //TODO: connect active markets to competitions or categories, e.g. don't ask for tennis markets when dealing with a soccer competition.
+        Set<String> marketTypes = loadActiveMarketTypes();
+
+        List<DataMapping> competitionMappings = dataMappingService.loadDataMappingsMarkedForProcessing(ExternalDataSource.BETFAIR, MappingType.COMPETITION);
+        for (DataMapping competitionMapping : competitionMappings) {
+            List<DataMapping> eventMappings = dataMappingService.loadDataMappingsMarkedForProcessing(ExternalDataSource.BETFAIR, MappingType.EVENT, competitionMapping.getExternalDescription());
+
+            Set<String> eventIdList = eventMappings.stream()
+                    .map(DataMapping::getExternalId)
+                    .collect(Collectors.toSet());
+
+            if (!eventIdList.isEmpty()) {
+                futureList.add(betfairClient.asyncLoadMarkets(eventIdList, marketTypes, executorService));
+            }
         }
+
+        CompletableFuture[] completableFutures = futureList.toArray(new CompletableFuture[futureList.size()]);
+        CompletableFuture.allOf(completableFutures)
+                .whenComplete((s, throwable) -> {
+                    if (throwable != null) {
+                        LOGGER.error("Something bad happened", throwable);
+                    } else {
+                        LOGGER.info("Event Market load completed!");
+                    }
+                })
+                .get();
+    }
+
+    private Set<String> loadActiveMarketTypes() {
+        List<DataMapping> marketTypeMappings = dataMappingService.loadDataMappingsMarkedForProcessing(ExternalDataSource.BETFAIR, MappingType.MARKET_TYPE);
+        return marketTypeMappings.stream()
+                .map(DataMapping::getExternalId)
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -199,7 +232,6 @@ public class BetfairScheduler {
                     }
                 });
     }
-
 
 
 }

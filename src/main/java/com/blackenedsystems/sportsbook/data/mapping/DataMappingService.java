@@ -89,6 +89,11 @@ public class DataMappingService {
 
     @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
     public List<DataMapping> loadDataMappingsMarkedForProcessing(final ExternalDataSource externalDataSource, final MappingType mappingType) {
-        return dataMappingDao.loadDataMappingsWithLoadChildrenSet(externalDataSource, mappingType);
+        return dataMappingDao.loadActiveDataMappings(externalDataSource, mappingType);
+    }
+
+    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+    public List<DataMapping> loadDataMappingsMarkedForProcessing(final ExternalDataSource externalDataSource, final MappingType mappingType, final String parent) {
+        return dataMappingDao.loadActiveDataMappings(externalDataSource, mappingType, parent);
     }
 }

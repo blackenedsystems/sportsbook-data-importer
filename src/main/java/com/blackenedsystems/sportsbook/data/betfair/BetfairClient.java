@@ -202,8 +202,8 @@ public class BetfairClient {
      * @param locale         locale to use for strings returned by Betfair
      * @return  a list of events for the specified competitions, with start times after 'now'.
      */
-    public List<Event> loadEvents(Set<String> competitionIds, Locale locale) {
-        LOGGER.info("Loading Betfair events for competitions: {}", competitionIds.toArray());
+    public List<Event> loadEvents(final Set<String> competitionIds, final Locale locale) {
+        LOGGER.info("Loading Betfair events for competitions: {}", Arrays.toString(competitionIds.toArray()));
 
         List<Event> eventList = new ArrayList<>();
         try {
@@ -230,5 +230,48 @@ public class BetfairClient {
             LOGGER.error(errorMessage, e);
         }
         return eventList;
+    }
+
+    public CompletableFuture<List<Market>> asyncLoadMarkets(final Set<String> eventIds, final Set<String> marketTypes, final ExecutorService executorService) {
+        return CompletableFuture.supplyAsync( () -> loadMarkets(eventIds, marketTypes, Locale.getDefault()), executorService );
+    }
+
+    public CompletableFuture<List<Market>> asyncLoadMarkets(final Set<String> eventIds, final Set<String> marketTypes, final Locale locale, final ExecutorService executorService) {
+        return CompletableFuture.supplyAsync( () -> loadMarkets(eventIds, marketTypes, locale), executorService );
+    }
+
+    public List<Market> loadMarkets(final Set<String> eventIds, final Set<String> marketTypes, final Locale locale) {
+        LOGGER.info("Loading Betfair market information for events: {} ", Arrays.toString(eventIds.toArray()));
+
+        List<Market> marketList = new ArrayList<>();
+        try {
+            TimeRange startTime = new TimeRange();
+            startTime.setFrom(new Date());
+
+            MarketFilter marketFilter = new MarketFilter();
+            marketFilter.setEventIds(eventIds);
+            marketFilter.setMarketStartTime(startTime);
+            marketFilter.setMarketTypeCodes(marketTypes);
+
+            Set<MarketProjection> marketProjections = new HashSet<>();
+            marketProjections.add(MarketProjection.EVENT);
+            marketProjections.add(MarketProjection.RUNNER_METADATA);
+
+            Map<String, Object> params = new HashMap<>();
+            params.put(FILTER, marketFilter);
+            params.put(LOCALE, locale.toString());
+            params.put(MARKET_PROJECTION, marketProjections);
+            params.put(MAX_RESULT, 1000);
+
+            Optional<String> result = betfairConnector.postRequest(APIOperation.LISTMARKETCATALOGUE, params);
+            if (result.isPresent()) {
+                LOGGER.debug("Result of loadMarkets: {}", result.get());
+            }
+
+        } catch (Exception e) {
+            String errorMessage = String.format("Failed to load market information for events: %s", eventIds.toArray());
+            LOGGER.error(errorMessage, e);
+        }
+        return marketList;
     }
 }

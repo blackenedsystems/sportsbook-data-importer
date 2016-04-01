@@ -38,15 +38,13 @@ public class DataMappingDao extends AbstractDao {
     public List<DataMapping> loadDataMappings() {
         LOGGER.debug("Loading all data mappings.");
 
-        List<DataMapping> dataMappings = jdbcTemplate.query(
+        return jdbcTemplate.query(
                 "SELECT id, data_source, data_type, internal_id, external_id, external_description, parent, " +
                 "       active, created, created_by, updated, updated_by " +
                 "  FROM data_mapping",
                 (resultSet, i) -> {
                     return mapDataMapping(resultSet);
                 });
-
-        return dataMappings;
     }
 
 
@@ -75,14 +73,14 @@ public class DataMappingDao extends AbstractDao {
                 });
     }
 
-    public List<DataMapping> loadDataMappingsWithLoadChildrenSet(final ExternalDataSource externalDataSource, final MappingType mappingType) {
+    public List<DataMapping> loadActiveDataMappings(final ExternalDataSource externalDataSource, final MappingType mappingType) {
         LOGGER.debug("Loading data mappings with active set to true for {}/{}.", externalDataSource.toString(), mappingType.toString());
 
         SqlParameterSource parameters = new MapSqlParameterSource()
                 .addValue("data_source", externalDataSource.toString())
                 .addValue("data_type", mappingType.toString());
 
-        List<DataMapping> dataMappings = namedParameterJdbcTemplate.query(
+        return namedParameterJdbcTemplate.query(
                 "SELECT id, data_source, data_type, internal_id, external_id, external_description, parent, " +
                 "       active, created, created_by, updated, updated_by " +
                 "  FROM data_mapping " +
@@ -93,8 +91,28 @@ public class DataMappingDao extends AbstractDao {
                 (resultSet, i) -> {
                     return mapDataMapping(resultSet);
                 });
+    }
 
-        return dataMappings;
+    public List<DataMapping> loadActiveDataMappings(final ExternalDataSource externalDataSource, final MappingType mappingType, final String parent) {
+        LOGGER.debug("Loading data mappings with active set to true for {}/{}.", externalDataSource.toString(), mappingType.toString());
+
+        SqlParameterSource parameters = new MapSqlParameterSource()
+                .addValue("data_source", externalDataSource.toString())
+                .addValue("data_type", mappingType.toString())
+                .addValue("parent", parent);
+
+        return namedParameterJdbcTemplate.query(
+                "SELECT id, data_source, data_type, internal_id, external_id, external_description, parent, " +
+                        "       active, created, created_by, updated, updated_by " +
+                        "  FROM data_mapping " +
+                        " WHERE data_source = :data_source " +
+                        "   AND data_type = :data_type " +
+                        "   AND active = true " +
+                        "   AND parent = :parent",
+                parameters,
+                (resultSet, i) -> {
+                    return mapDataMapping(resultSet);
+                });
     }
 
     public Optional<DataMapping> findByExernalId(final ExternalDataSource externalDataSource, final MappingType mappingType, final String externalId) {

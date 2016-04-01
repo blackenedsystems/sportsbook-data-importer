@@ -95,7 +95,7 @@ public class BetfairConnector {
             JsonNode jsonNode = objectMapper.readTree(responseString);
             if ("SUCCESS".equals(jsonNode.get("loginStatus").asText())) {
                 sessionToken = jsonNode.get("sessionToken").asText();
-                LOGGER.debug("Successfully logged in to betfair api");
+                LOGGER.info("Successfully logged in to betfair api");
             } else {
                 LOGGER.error("Failed to logon to betfair api: {}", jsonNode.get("loginStatus").asText());
             }
@@ -119,7 +119,7 @@ public class BetfairConnector {
             JsonNode jsonNode = new ObjectMapper().readTree(responseString);
             if ("SUCCESS".equals(jsonNode.get("status").asText())) {
                 sessionToken = null;
-                LOGGER.debug("Successfully logged out of betfair api");
+                LOGGER.info("Successfully logged out of betfair api");
             } else {
                 LOGGER.error("Failed to logout of betfair api: {}", jsonNode.get("error").asText());
             }
