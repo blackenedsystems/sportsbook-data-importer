@@ -24,7 +24,7 @@
 
         <version.httpclient>4.5.1</version.httpclient>
         <version.liquibase>3.4.2</version.liquibase>
-        <version.postgresql>9.3-1104-jdbc41</version.postgresql>
+        <version.postgresql>42.2.11</version.postgresql>
     </properties>
 
     <dependencies>
